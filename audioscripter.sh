@@ -7,9 +7,9 @@ INTENSITY="${BASE}"_vamp_bbc-vamp-plugins_bbc-intensity_intensity.csv
 CSV="${BASE}".csv
 FUNSCRIPT="${BASE}".funscript
 
-sonic-annotator -d vamp:beatroot-vamp:beatroot:beats -w csv --csv-force "${INPUT}"
+sonic-annotator -d vamp:bbc-vamp-plugins:bbc-rhythm:onset -w csv --csv-force "${INPUT}"
 
-sonic-annotator -n -d vamp:bbc-vamp-plugins:bbc-intensity:intensity  -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${INPUT}"
+sonic-annotator -n -d vamp:bbc-vamp-plugins:bbc-energy:rmsenergy  -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${INPUT}"
 
 MAX=$(cut -d, -f4 < "${INTENSITY}" | sort -nr | head -1)
 
