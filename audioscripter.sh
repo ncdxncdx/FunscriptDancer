@@ -1,17 +1,36 @@
 set -e
 
-INPUT="$1"
-BASE="${INPUT%.*}"
-BEAT="${BASE}"_vamp_beatroot-vamp_beatroot_beats.csv
-INTENSITY="${BASE}"_vamp_bbc-vamp-plugins_bbc-intensity_intensity.csv
-CSV="${BASE}".csv
-FUNSCRIPT="${BASE}".funscript
+BASE=$(basename "${1}" .mp3)
 
-sonic-annotator -d vamp:bbc-vamp-plugins:bbc-rhythm:onset -w csv --csv-force "${INPUT}"
+AUDIO=tmp/"${BASE}".flac
 
-sonic-annotator -n -d vamp:bbc-vamp-plugins:bbc-energy:rmsenergy  -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${INPUT}"
+BEAT=tmp/"${BASE}"_vamp_bbc-vamp-plugins_bbc-rhythm_onset.csv
+INTENSITY=tmp/"${BASE}"_vamp_bbc-vamp-plugins_bbc-energy_rmsenergy.csv
+CSV=tmp/"${BASE}".csv
+FUNSCRIPT=out/"${BASE}".funscript
 
-MAX=$(cut -d, -f4 < "${INTENSITY}" | sort -nr | head -1)
+mkdir -p out
+mkdir -p tmp
+
+ffmpeg -i "$1" "${AUDIO}"
+
+sonic-annotator -t onset.rdf -w csv --csv-force "${AUDIO}"
+
+sonic-annotator -n -d vamp:bbc-vamp-plugins:bbc-energy:rmsenergy  -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}"
+
+read MAX <<< $(awk -F, '
+BEGIN {
+    max=0
+}
+{
+    value = $4
+    if ( value > max )
+        max = value
+}
+END {
+    print max
+}
+' "${INTENSITY}")
 
 exec awk -F, -v max="${MAX}" '
 BEGIN { direction = 1; print "{ \"actions\": [" }
@@ -26,3 +45,5 @@ BEGIN { direction = 1; print "{ \"actions\": [" }
 }
 END { print " ] } " }
 ' "${INTENSITY}" > "${FUNSCRIPT}"
+
+rm tmp/*
