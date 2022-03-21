@@ -2,18 +2,19 @@ BEGIN {
     FS = ","
     direction = 1
     factor = 50 / ( max - min )
+    action[0] = 50
     print "{"
     print "\"actions\": ["
 }
 {
+    at = int( $1 * 1000 )
     if ( NR == FNR ) {
-        action[int($1)] = $2
-        printf "at: %d offset: %d stored: %d\n", int($1), $2, action[int($1)] > "/dev/stderr"
+        action[at] = $2
+        printf "at: %d offset: %f stored: %f\n", at, $2, action[at] > "/dev/stderr"
     }
     else {
         value = $4
-        at = int( $1 * 1000 )
-        offset = action[int($1)]
+        offset = action[at]
         norm = value * direction * factor
         norm_offset = norm + offset
         printf "value: %f, offset: %f, norm: %f, norm_offset: %f\n", value, offset, norm, norm_offset > "/dev/stderr"
