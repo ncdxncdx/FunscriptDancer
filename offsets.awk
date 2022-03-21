@@ -1,10 +1,10 @@
 BEGIN {
     FS = ","
-    factor = 50 / ( max - min )
+    factor = range / ( max - min )
 }
 {
     time = $1
     input = $4
-    output = ( input -min ) * factor + 25
+    output = ( input - min ) * factor + ( ( 100 - range ) / 2 )
     printf "%f,%f\n", time, output
 }

@@ -1,7 +1,7 @@
 BEGIN {
     FS = ","
     direction = 1
-    factor = 50 / ( max - min )
+    factor = multiplier * 50 / ( max - min )
     action[0] = 50
     print "{"
     print "\"actions\": ["
