@@ -5,7 +5,8 @@ BASE=$(basename "${1}" .mp3)
 AUDIO=tmp/"${BASE}".flac
 
 BEAT=tmp/"${BASE}"_vamp_bbc-vamp-plugins_bbc-rhythm_onset.csv
-INTENSITY=tmp/"${BASE}"_vamp_bbc-vamp-plugins_bbc-energy_rmsenergy.csv
+ENERGY=tmp/"${BASE}"_vamp_bbc-vamp-plugins_bbc-energy_rmsenergy.csv
+PITCH=tmp/"${BASE}"_vamp_vamp-aubio_aubiopitch_frequency.csv
 CSV=tmp/"${BASE}".csv
 FUNSCRIPT=out/"${BASE}".funscript
 
@@ -16,23 +17,26 @@ ffmpeg -i "$1" "${AUDIO}"
 
 sonic-annotator -t onset.rdf -w csv --csv-force "${AUDIO}"
 
-sonic-annotator -n -d vamp:bbc-vamp-plugins:bbc-energy:rmsenergy  -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}"
+sonic-annotator -n -d vamp:bbc-vamp-plugins:bbc-energy:rmsenergy -d vamp:vamp-aubio:aubiopitch:frequency -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}"
 
-read MAX <<< $(awk -F, '
+read MIN_ENERGY MAX_ENERGY <<< $(awk -F, '
 BEGIN {
     max=0
+    min=10000
 }
 {
     value = $4
     if ( value > max )
         max = value
+    if ( value < min )
+        min = value
 }
 END {
-    print max
+    print min,max
 }
-' "${INTENSITY}")
+' "${ENERGY}")
 
-exec awk -F, -v max="${MAX}" '
+exec awk -F, -v max="${MAX_ENERGY}" '
 BEGIN { direction = 1; print "{ \"actions\": [" }
 {
     value = $4
@@ -44,6 +48,6 @@ BEGIN { direction = 1; print "{ \"actions\": [" }
     separator = ","
 }
 END { print " ] } " }
-' "${INTENSITY}" > "${FUNSCRIPT}"
+' "${ENERGY}" > "${FUNSCRIPT}"
 
 rm tmp/*
