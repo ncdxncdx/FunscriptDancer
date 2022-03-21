@@ -28,8 +28,7 @@ BEGIN {
 }
 END {
     print " ], "
-    printf "\"metadata\":{\"creator\":\"audio-funscripter\",\"description\":\"Procedurally generated\",\"duration\":%d}", last_at
-    print " } "
+    printf "\"metadata\":{\"creator\":\"audio-funscripter\",\"description\":\"Procedurally generated\",\"duration\":%d,", last_at
 }
 function action( norm, at ) {
     norm_offset = norm + offset

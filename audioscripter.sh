@@ -40,6 +40,8 @@ echo "Min energy: ${MIN_ENERGY} Max energy: ${MAX_ENERGY}"
 
 awk -v max="${MAX_ENERGY}" -v min="${MIN_ENERGY}" -v multiplier="${MULTIPLIER}" -f funscript.awk "${OFFSET}" "${ENERGY}" > "${FUNSCRIPT}" 2>debug
 
+echo "\"parameters\":{\"offset_range\":${OFFSET_RANGE},\"multiplier\":${MULTIPLIER},\"threshold\":${THRESHOLD}}} }" >> "${FUNSCRIPT}"
+
 echo "Written ${FUNSCRIPT}"
 
 rm -rf tmp
