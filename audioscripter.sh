@@ -1,6 +1,6 @@
 set -e
 
-BASE=$(basename "${1}" .mp3)
+BASE=$(basename "${1}" .mp4)
 
 AUDIO=tmp/"${BASE}".wav
 
@@ -11,8 +11,7 @@ OFFSET=tmp/"${BASE}"_offset.csv
 CSV=tmp/"${BASE}".csv
 FUNSCRIPT=out/"${BASE}".funscript
 
-mkdir -p out
-mkdir -p tmp
+mkdir -p out tmp
 
 if [ ! -f "${AUDIO}" ]
 then
@@ -36,3 +35,5 @@ echo "Min energy: ${MIN_ENERGY} Max energy: ${MAX_ENERGY}"
 awk -v max="${MAX_ENERGY}" -v min="${MIN_ENERGY}" -f funscript.awk "${OFFSET}" "${ENERGY}" > "${FUNSCRIPT}"
 
 echo "Written ${FUNSCRIPT}"
+
+rm -rf tmp
