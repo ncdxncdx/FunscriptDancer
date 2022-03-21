@@ -1,8 +1,8 @@
 set -e
 
 OFFSET_RANGE=100
-MULTIPLIER=1
-THRESHOLD=0
+MULTIPLIER=1.2
+THRESHOLD=0.3
 
 BASE=$(basename "${1}" .mp4)
 
@@ -38,7 +38,7 @@ read MIN_ENERGY MAX_ENERGY <<< $(awk -f minmax.awk "${ENERGY}")
 
 echo "Min energy: ${MIN_ENERGY} Max energy: ${MAX_ENERGY}"
 
-awk -v max="${MAX_ENERGY}" -v min="${MIN_ENERGY}" -v multiplier="${MULTIPLIER}" -f funscript.awk "${OFFSET}" "${ENERGY}" > "${FUNSCRIPT}"
+awk -v max="${MAX_ENERGY}" -v min="${MIN_ENERGY}" -v multiplier="${MULTIPLIER}" -f funscript.awk "${OFFSET}" "${ENERGY}" > "${FUNSCRIPT}" 2>debug
 
 echo "Written ${FUNSCRIPT}"
 
