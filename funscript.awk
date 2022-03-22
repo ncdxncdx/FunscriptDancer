@@ -2,8 +2,6 @@ BEGIN {
     FS = ","
     factor = multiplier * 50 / ( max - min )
     offsets[0] = 50
-    print "{"
-    print "\"actions\": ["
     last_at = 0
 }
 {
@@ -26,15 +24,11 @@ BEGIN {
         last_at = at
     }
 }
-END {
-    print " ], "
-    printf "\"metadata\":{\"creator\":\"audio-funscripter\",\"description\":\"Procedurally generated\",\"duration\":%d,", last_at
-}
 function action( norm, at ) {
     norm_offset = norm + offset
     pos = int( norm_offset )
     pos > 100 ? pos = 100 : pos = pos
     pos < 0 ? pos = 0 : pos = pos
     printf "value: %f, offset: %f, norm: %f, norm_offset: %f, pos: %d\n", value, offset, norm, norm_offset, pos > "/dev/stderr"
-    printf "%s{\"pos\": \"%s\", \"at\": \"%s\"}\n", separator, pos, at
+    printf "%s{\"pos\":\"%s\",\"at\":\"%s\"}", separator, pos, at
 }

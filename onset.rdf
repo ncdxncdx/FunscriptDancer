@@ -29,6 +29,6 @@
     ] ;
     vamp:parameter_binding [
         vamp:parameter [ vamp:identifier "threshold" ] ;
-        vamp:value "THRESHOLD"^^xsd:float ;
+        vamp:value "${THRESHOLD}"^^xsd:float ;
     ] ;
     vamp:output <http://vamp-plugins.org/rdf/plugins/bbc-vamp-plugins#bbc-rhythm_output_onset> .

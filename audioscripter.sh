@@ -1,10 +1,10 @@
 set -e
 
-OFFSET_RANGE=100
-MULTIPLIER=1.2
-THRESHOLD=0.3
+export OFFSET_RANGE=100
+export MULTIPLIER=1
+export THRESHOLD=0.3
 
-BASE=$(basename "${1}" .mp4)
+export BASE=$(basename "${1}" .mp4)
 
 AUDIO=tmp/"${BASE}".wav
 
@@ -16,13 +16,14 @@ CSV=tmp/"${BASE}".csv
 FUNSCRIPT=out/"${BASE}".funscript
 
 mkdir -p out tmp
+rm debug
 
 if [ ! -f "${AUDIO}" ]
 then
     ffmpeg -i "$1" -vn "${AUDIO}"
 fi
 
-sed "s/THRESHOLD/${THRESHOLD}/g" onset.rdf > tmp/onset.rdf
+envsubst < onset.rdf > tmp/onset.rdf
 
 sonic-annotator -t tmp/onset.rdf -w csv --csv-force "${AUDIO}"
 
@@ -32,16 +33,18 @@ read MIN_PITCH MAX_PITCH <<< $(awk -f minmax.awk "${PITCH}")
 
 awk -v max="${MAX_PITCH}" -v min="${MIN_PITCH}" -v range="${OFFSET_RANGE}" -f offsets.awk "${PITCH}" > "${OFFSET}"
 
-echo "Min pitch: ${MIN_PITCH} Max pitch: ${MAX_PITCH}"
+echo "Min pitch: ${MIN_PITCH} Max pitch: ${MAX_PITCH}" >> debug
 
 read MIN_ENERGY MAX_ENERGY <<< $(awk -f minmax.awk "${ENERGY}")
 
-echo "Min energy: ${MIN_ENERGY} Max energy: ${MAX_ENERGY}"
+echo "Min energy: ${MIN_ENERGY} Max energy: ${MAX_ENERGY}" >> debug
 
-awk -v max="${MAX_ENERGY}" -v min="${MIN_ENERGY}" -v multiplier="${MULTIPLIER}" -f funscript.awk "${OFFSET}" "${ENERGY}" > "${FUNSCRIPT}" 2>debug
+export ACTIONS=$(awk -v max="${MAX_ENERGY}" -v min="${MIN_ENERGY}" -v multiplier="${MULTIPLIER}" -f funscript.awk "${OFFSET}" "${ENERGY}" 2>>debug)
 
-echo "\"parameters\":{\"offset_range\":${OFFSET_RANGE},\"multiplier\":${MULTIPLIER},\"threshold\":${THRESHOLD}}} }" >> "${FUNSCRIPT}"
+echo "${ACTIONS}" >> debug
+
+envsubst < template.funscript.json > "${FUNSCRIPT}"
 
 echo "Written ${FUNSCRIPT}"
 
-rm -rf tmp
+# rm -rf tmp
