@@ -16,7 +16,7 @@ CSV=tmp/"${BASE}".csv
 FUNSCRIPT=out/"${BASE}".funscript
 
 mkdir -p out tmp
-rm debug
+rm -f debug
 
 if [ ! -f "${AUDIO}" ]
 then
@@ -27,7 +27,15 @@ envsubst < onset.rdf > tmp/onset.rdf
 
 sonic-annotator -t tmp/onset.rdf -w csv --csv-force "${AUDIO}"
 
-sonic-annotator -n -d vamp:bbc-vamp-plugins:bbc-energy:rmsenergy -d vamp:vamp-aubio:aubiopitch:frequency -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}"
+if [ ! -f "${ENERGY}" ]
+then
+    sonic-annotator -n -d vamp:bbc-vamp-plugins:bbc-energy:rmsenergy -S sum --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}"
+fi
+
+if [ ! -f "${PITCH}" ]
+then
+    sonic-annotator -n -d vamp:vamp-aubio:aubiopitch:frequency -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}"
+fi
 
 read MIN_PITCH MAX_PITCH <<< $(awk -f minmax.awk "${PITCH}")
 
