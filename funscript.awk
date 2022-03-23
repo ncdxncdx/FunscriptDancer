@@ -1,6 +1,6 @@
 BEGIN {
     FS = ","
-    factor = multiplier * 50 / ( log( max ) - log( min ) )
+    factor = multiplier * 50 / ( max - min )
     offsets[0] = 50
     last_at = 0
 }
@@ -11,7 +11,7 @@ BEGIN {
         printf "at: %d offset: %f stored: %f\n", at, $2, offsets[at] > "/dev/stderr"
     }
     else {
-        value = log( $4 )
+        value = $4
         offset = offsets[at]
         norm = value * factor * -1
         if ( at != 0 ) {
