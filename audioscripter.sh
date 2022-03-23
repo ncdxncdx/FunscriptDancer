@@ -46,10 +46,10 @@ read MIN_ENERGY MAX_ENERGY <<< $(awk -f minmax.awk "${ENERGY}")
 
 echo "Min energy: ${MIN_ENERGY} Max energy: ${MAX_ENERGY}" >> "${DEBUG}"
 
-awk -v max="${MAX_ENERGY}" -v min="${MIN_ENERGY}" -v multiplier="${MULTIPLIER}" -f funscript.awk "${OFFSET}" "${ENERGY}" > "${ACTIONS}" 2>"${DEBUG}"
+awk -v max="${MAX_ENERGY}" -v min="${MIN_ENERGY}" -v multiplier="${MULTIPLIER}" -f funscript.awk "${OFFSET}" "${ENERGY}" > "${ACTIONS}" 2>>"${DEBUG}"
 
 envsubst < template.funscript.json > "${FUNSCRIPT}"
 
-sed -i -e "/actions/r./"${ACTIONS}"" "${FUNSCRIPT}"
+sed -i -e "/actions/r./${ACTIONS}" "${FUNSCRIPT}"
 
 echo "Written ${FUNSCRIPT}"
