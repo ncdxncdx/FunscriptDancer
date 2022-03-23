@@ -33,8 +33,9 @@ export DURATION=$(echo "${DURATION_S} * 1000" | bc | cut -f1 -d ".")
 envsubst < onset.rdf > tmp/onset.rdf
 
 sonic-annotator -d "${BEAT_TRANSFORM}" -w csv --csv-force "${AUDIO}"
-sonic-annotator -n -d "${ENERGY_TRANSFORM}" -S sum --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}"
-sonic-annotator -n -d "${PITCH_TRANSFORM}" -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}"
+sonic-annotator -n -d "${ENERGY_TRANSFORM}" -S sum --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}" &
+sonic-annotator -n -d "${PITCH_TRANSFORM}" -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}" &
+wait
 
 read MIN_PITCH MAX_PITCH <<< $(awk -f minmax.awk "${PITCH}")
 
