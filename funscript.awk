@@ -3,6 +3,7 @@ BEGIN {
     factor = multiplier * 50 / ( max - min )
     offsets[0] = 50
     last_at = 0
+    last_pos = 50
 }
 {
     at = int( $1 * 1000 )
@@ -13,22 +14,44 @@ BEGIN {
     else {
         value = $4
         offset = offsets[at]
-        norm = value * factor * -1
-        if ( at != 0 ) {
+        if ( at != last_at ) {
             int_at = int( ( at + last_at ) / 2 )
-            int_norm = value * factor
-            action(int_norm, int_at)
+            pos = ( value * factor ) + offset
+            peak( pos, int_at, last_pos, last_at )
+            last_at = int_at
+            last_pos = pos
         }
-        action(norm, at)
-        separator = ","
+        pos = ( value * factor * -1 ) + offset
+        peak( pos, at, last_pos, last_at )
         last_at = at
+        last_pos = pos
     }
 }
-function action( norm, at ) {
-    norm_offset = norm + offset
-    pos = int( norm_offset )
+function peak( pos, at, last_pos, last_at ) {
+    int_at = int( ( at + last_at ) / 2 )
+    printf "pos %d, at %d, last_pos %d, last_at %d, int_at %d\n", pos, at, last_pos, last_at, int_at > "/dev/stderr"
+    if ( last_pos < 0 ) {
+        action( 0, int_at )
+    }
+    else if ( last_pos > 100 ) {
+        action( 100, int_at )
+    }
+
+    if ( pos > 100 ) {
+        action( 100, int_at )
+        action( 200 - pos, at )
+    }
+    else if ( pos < 0 ) {
+        action( 0, int_at )
+        action( -pos, at )
+    }
+    else {
+        action( pos, at )
+    }
+}
+function action( pos, at ) {
     pos > 100 ? pos = 100 : pos = pos
     pos < 0 ? pos = 0 : pos = pos
-    printf "value: %f, offset: %f, norm: %f, norm_offset: %f, pos: %d\n", value, offset, norm, norm_offset, pos > "/dev/stderr"
-    printf "%s{\"pos\":\"%s\",\"at\":\"%s\"}", separator, pos, at
+    printf "%s{\"pos\":\"%s\",\"at\":\"%s\"}\n", separator, int( pos ), at
+    separator = ","
 }
