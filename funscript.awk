@@ -15,10 +15,10 @@ BEGIN {
         value = $4
         offset = offsets[at]
         if ( at != last_at ) {
-            int_at = int( ( at + last_at ) / 2 )
+            int_at2 = int( ( at + last_at ) / 2 )
             pos = ( value * factor ) + offset
-            peak( pos, int_at, last_pos, last_at )
-            last_at = int_at
+            peak( pos, int_at2, last_pos, last_at )
+            last_at = int_at2
             last_pos = pos
         }
         pos = ( value * factor * -1 ) + offset
@@ -28,21 +28,24 @@ BEGIN {
     }
 }
 function peak( pos, at, last_pos, last_at ) {
-    int_at = int( ( at + last_at ) / 2 )
-    printf "pos %d, at %d, last_pos %d, last_at %d, int_at %d\n", pos, at, last_pos, last_at, int_at > "/dev/stderr"
+    printf "pos %d, at %d, last_pos %d, last_at %d\n", pos, at, last_pos, last_at> "/dev/stderr"
     if ( last_pos < 0 ) {
-        action( 0, int_at )
+        tmp_at = int_at( pos, at, last_pos, last_at, 0 )
+        action( 0, tmp_at )
     }
     else if ( last_pos > 100 ) {
-        action( 100, int_at )
+        tmp_at = int_at( pos, at, last_pos, last_at, 100 )
+        action( 100, tmp_at )
     }
 
     if ( pos > 100 ) {
-        action( 100, int_at )
+        tmp_at = int_at( pos, at, last_pos, last_at, 100 )
+        action( 100, tmp_at )
         action( 200 - pos, at )
     }
     else if ( pos < 0 ) {
-        action( 0, int_at )
+        tmp_at = int_at( pos, at, last_pos, last_at, 0 )
+        action( 0, tmp_at )
         action( -pos, at )
     }
     else {
@@ -54,4 +57,14 @@ function action( pos, at ) {
     pos < 0 ? pos = 0 : pos = pos
     printf "%s{\"pos\":\"%s\",\"at\":\"%s\"}\n", separator, int( pos ), at
     separator = ","
+}
+function int_at( pos, at, last_pos, last_at, limit ) {
+    before_ratio = abs( last_pos - limit )
+    after_ratio = abs( pos - limit )
+
+    return ( before_ratio * at + after_ratio * last_at ) / ( after_ratio + before_ratio )
+}
+function abs( v ) {
+    v += 0
+    return v < 0 ? -v : v
 }
