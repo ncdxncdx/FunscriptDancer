@@ -2,7 +2,6 @@ set -e
 
 export OFFSET_RANGE=100
 export MULTIPLIER=1
-export THRESHOLD=0.3
 
 export BASE=$(basename "${1}" .mp4)
 
@@ -20,7 +19,7 @@ PIPE=tmp/"${BASE}"_pipe
 DEBUG=tmp/"${BASE}"_debug
 FUNSCRIPT=out/"${BASE}".funscript
 
-rm -rf tmp
+# rm -rf tmp
 mkdir -p out tmp
 
 if [ ! -f "${AUDIO}" ]
@@ -28,9 +27,7 @@ then
     ffmpeg -i "$1" -vn "${AUDIO}"
 fi
 DURATION_S=$(ffprobe -i "${AUDIO}" -show_entries format=duration -v quiet -of csv="p=0")
-export DURATION=$(echo "${DURATION_S} * 1000" | bc | cut -f1 -d ".")
-
-envsubst < onset.rdf > tmp/onset.rdf
+export DURATION=$(echo "${DURATION_S}" | cut -f1 -d ".")
 
 sonic-annotator -d "${BEAT_TRANSFORM}" -w csv --csv-force "${AUDIO}"
 sonic-annotator -d "${ENERGY_TRANSFORM}" -S sum --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}" &

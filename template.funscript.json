@@ -1,6 +1,6 @@
 {
     "metadata":{"creator":"audio-funscripter","title":"${BASE}","description":"Procedurally generated","duration":${DURATION}},
-    "audio-funscripter":{"offset_range":${OFFSET_RANGE},"multiplier":${MULTIPLIER},"threshold":${THRESHOLD}, "transforms":{"beat":"${BEAT_TRANSFORM}","energy":"${ENERGY_TRANSFORM}","pitch":"${PITCH_TRANSFORM}"}},
+    "audio-funscripter":{"offset_range":${OFFSET_RANGE},"multiplier":${MULTIPLIER},"transforms":{"beat":"${BEAT_TRANSFORM}","energy":"${ENERGY_TRANSFORM}","pitch":"${PITCH_TRANSFORM}"}},
     "range":100,
     "inverted":false,
     "version":1.0,
