@@ -17,6 +17,7 @@ OFFSET=tmp/"${BASE}"_offset.csv
 ACTIONS=tmp/"${BASE}"_actions.csv
 PIPE=tmp/"${BASE}"_pipe
 DEBUG=tmp/"${BASE}"_debug
+FUNSCRIPT_TMP=tmp/"${BASE}".funscript
 FUNSCRIPT=out/"${BASE}".funscript
 
 # rm -rf tmp
@@ -46,8 +47,10 @@ echo "Min energy: ${MIN_ENERGY} Max energy: ${MAX_ENERGY}" >> "${DEBUG}"
 
 awk -v max="${MAX_ENERGY}" -v min="${MIN_ENERGY}" -v multiplier="${MULTIPLIER}" -f funscript.awk "${OFFSET}" "${ENERGY}" > "${ACTIONS}" 2>>"${DEBUG}"
 
-envsubst < template.funscript.json > "${FUNSCRIPT}"
+envsubst < template.funscript.json > "${FUNSCRIPT_TMP}"
 
-sed -i -e "/actions/r./${ACTIONS}" "${FUNSCRIPT}"
+sed -i -e "/actions/r./${ACTIONS}" "${FUNSCRIPT_TMP}"
+
+jq -c . "${FUNSCRIPT_TMP}" > "${FUNSCRIPT}"
 
 echo "Written ${FUNSCRIPT}"
