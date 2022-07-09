@@ -37,6 +37,7 @@ function actions(offsets, energies, ats)
     last_pos = 50
     for (offset, energy, at_s) in zip(offsets, energies, ats)
         at = trunc(Int, at_s * 1000)
+        println("offset: $offset, energy: $energy, at: $at")
         if ( at != last_at )
             int_at2 = trunc(Int,( ( at + last_at ) / 2 ))
             pos = ( energy * factor ) + offset
@@ -117,11 +118,11 @@ function main(video_file)
 
     rm(audio_file,force=true)
 
-    headers = [:start,:end,:metric,:value,:metric_description]
-    energy = CSV.File(energy_file,header=headers,select=[:value,:end])
+    headers = [:start_time,:duration,:metric,:value,:metric_description]
+    energy = CSV.File(energy_file,header=headers,select=[:value,:start_time,:duration])
     pitch = CSV.File(pitch_file,header=headers,select=[:value])
-    offsets_v = offsets(pitch.value)
-    actions_v = actions(offsets_v, energy.value, energy.end)
+    offsets_v = offsets(pitch[:value])
+    actions_v = actions(offsets_v, energy[:value], energy[:start_time])
 
     funscript = Dict(
         "metadata" => Dict(
