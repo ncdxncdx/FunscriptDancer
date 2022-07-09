@@ -1,3 +1,5 @@
+#! /bin/bash
+
 set -e
 
 export OFFSET_RANGE=100

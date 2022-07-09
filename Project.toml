@@ -1,0 +1,19 @@
+name = "audioscripter"
+uuid = "b3995e71-4ef7-4fde-a328-1332479fb8ff"
+authors = ["ncdx <pwwreu00d@mozmail.com> and contributors"]
+version = "0.1.0"
+
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+FFMPEG = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
