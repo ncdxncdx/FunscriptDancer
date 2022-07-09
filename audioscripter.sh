@@ -1,7 +1,7 @@
 set -e
 
 export OFFSET_RANGE=100
-export MULTIPLIER=1
+export MULTIPLIER=1.5
 
 export BASE=$(basename "${1}" .mp4)
 
@@ -20,20 +20,34 @@ DEBUG=tmp/"${BASE}"_debug
 FUNSCRIPT_TMP=tmp/"${BASE}".funscript
 FUNSCRIPT=out/"${BASE}".funscript
 
-# rm -rf tmp
 mkdir -p out tmp
 
-if [ ! -f "${AUDIO}" ]
-then
-    ffmpeg -i "$1" -vn "${AUDIO}"
-fi
-DURATION_S=$(ffprobe -i "${AUDIO}" -show_entries format=duration -v quiet -of csv="p=0")
+DURATION_S=$(ffprobe -i "${1}" -show_entries format=duration -v quiet -of csv="p=0")
 export DURATION=$(echo "${DURATION_S}" | cut -f1 -d ".")
 
-sonic-annotator -d "${BEAT_TRANSFORM}" -w csv --csv-force "${AUDIO}"
-sonic-annotator -d "${ENERGY_TRANSFORM}" -S sum --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}" &
-sonic-annotator -d "${PITCH_TRANSFORM}" -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}" &
-wait
+if [ ! -f "${BEAT}" ] || [ ! -f "${ENERGY}" ] || [ ! -f "${PITCH}" ] 
+then
+    if [ ! -f "${AUDIO}" ]
+    then
+        ffmpeg -i "$1" -vn "${AUDIO}"
+    fi
+    
+    if [ ! -f "${BEAT}" ]
+    then
+        sonic-annotator -d "${BEAT_TRANSFORM}" -w csv --csv-force "${AUDIO}"
+    fi
+    if [ ! -f "${ENERGY}" ]
+    then
+        sonic-annotator -d "${ENERGY_TRANSFORM}" -S sum --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}" &
+    fi
+    if [ ! -f "${PITCH}" ]
+    then
+        sonic-annotator -d "${PITCH_TRANSFORM}" -S mean --summary-only --segments-from "${BEAT}"  -w csv --csv-force "${AUDIO}" &
+    fi
+    wait
+fi
+
+rm -f "${AUDIO}"
 
 read MIN_PITCH MAX_PITCH <<< $(awk -f minmax.awk "${PITCH}")
 

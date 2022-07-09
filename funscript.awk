@@ -55,14 +55,14 @@ function peak( pos, at, last_pos, last_at ) {
 function action( pos, at ) {
     pos > 100 ? pos = 100 : pos = pos
     pos < 0 ? pos = 0 : pos = pos
-    printf "%s{\"pos\":\"%s\",\"at\":\"%s\"}\n", separator, int( pos ), at
+    printf "%s{\"pos\":\"%s\",\"at\":\%s\}\n", separator, int( pos ), at
     separator = ","
 }
 function int_at( pos, at, last_pos, last_at, limit ) {
     before_ratio = abs( last_pos - limit )
     after_ratio = abs( pos - limit )
 
-    return ( before_ratio * at + after_ratio * last_at ) / ( after_ratio + before_ratio )
+    return int( ( before_ratio * at + after_ratio * last_at ) / ( after_ratio + before_ratio ) )
 }
 function abs( v ) {
     v += 0
