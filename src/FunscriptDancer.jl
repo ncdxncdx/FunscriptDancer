@@ -37,12 +37,10 @@ function calculate_offsets(pitch, normalised_pitch_to_offset)
 end
 
 function create_default_normanised_energy_to_pos(multiplier)
-    normalised_energy -> begin
-        normalised_energy * multiplier * 50
-    end
+    normalised_energy -> normalised_energy * multiplier * 50
 end
 
-function create_actions(data::AudioData, normalised_energy_to_pos)
+function create_actions(data::AudioData, normalised_energy_to_pos)::Vector{Dict{String,Int}}
     actions = Vector()
     push!(actions, Dict("pos" => 50, "at" => 0))
     function action(pos, at, last_pos, last_at)
