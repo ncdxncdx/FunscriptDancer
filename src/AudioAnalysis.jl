@@ -26,7 +26,7 @@ function analyze(video_file::String)::AudioData
     total_duration = begin
         output = FFMPEG.exe("-i",video_file,"-show_entries","format=duration","-v","quiet","-of","csv=p=0",command=FFMPEG.ffprobe, collect=true)
         duration_seconds = parse(Float32, output[1])
-        trunc(Int, duration_seconds * 1000)
+        round(Int, duration_seconds * 1000)
     end
     
     if !(isfile(beat_file) && isfile(energy_file) && isfile(pitch_file))
@@ -42,7 +42,7 @@ function analyze(video_file::String)::AudioData
     energy = CSV.File(energy_file,header=headers,select=[:value,:start_time,:duration])
     pitch = CSV.File(pitch_file,header=headers,select=[:value])
     end_time = map(energy[:start_time], energy[:duration]) do time,duration
-        trunc(Int, (time + duration) * 1000)
+        round(Int, (time + duration) * 1000)
     end
 
     return AudioData(pitch[:value], energy[:value], end_time, name, total_duration)
