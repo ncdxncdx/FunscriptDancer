@@ -19,26 +19,17 @@ function default_normalised_pitch_to_offset(normalised_pitch)
     normalised_pitch * range + ((100 - range) / 2)
 end
 
-struct RangeSummary
-    min
-    range
-    func
-    RangeSummary(values; f=x -> x) = begin
-        max = f(maximum(values))
-        min = f(minimum(values))
-        range = max - min
-        new(min, range, f)
-    end
-end
-
-function normalise(range_summary, value)
-    (range_summary.func(value) - range_summary.min) / range_summary.range
+function create_normalise_function(values; f=x -> x)
+    max = f(maximum(values))
+    min = f(minimum(values))
+    range = max - min
+    value -> (f(value) - min) / range
 end
 
 function calculate_offsets(pitch, normalised_pitch_to_offset)
-    range_summary = RangeSummary(pitch, f=log)
+    normalise = create_normalise_function(pitch, f=log)
     function offset(value)
-        normalised_pitch = normalise(range_summary, value)
+        normalised_pitch = normalise(value)
         offset = normalised_pitch_to_offset(normalised_pitch)
         round(Int, offset)
     end
@@ -58,14 +49,15 @@ function create_actions(data::AudioData, normalised_energy_to_pos)
         append!(actions, peak(pos, at, last_pos, last_at))
     end
     offsets = calculate_offsets(data.pitch, default_normalised_pitch_to_offset)
-    range_summary = RangeSummary(data.energy)
+    normalise = create_normalise_function(data.energy)
     last_at = 0
     last_pos = 50
     for (offset, energy, at) in zip(offsets, data.energy, data.at)
 
+        normalised_energy = normalise(energy)
+
         # up
         int_at2 = round(Int, ((at + last_at) / 2))
-        normalised_energy = normalise(range_summary, energy)
         pos = (normalised_energy_to_pos(normalised_energy)) + offset
         action(pos, int_at2, last_pos, last_at)
         last_at = int_at2
