@@ -14,37 +14,51 @@ function base_name( path )
     base
 end
 
-function calculate_offsets( pitch )
+function default_normalised_pitch_to_offset(normalised_pitch)
+    range = 100
+    normalised_pitch * range + ( ( 100 - range ) / 2 )
+end
+
+function calculate_offsets( pitch, normalised_pitch_to_offset )
     logmax = log(maximum(pitch))
     logmin = log(minimum(pitch))
-    range = 100
-    factor = range / ( logmax - logmin )
+    logrange = logmax - logmin
     function offset( value )
-        offset = ( log( value ) - logmin ) * factor + ( ( 100 - range ) / 2 )
+        normalised_pitch = ( log( value ) - logmin ) / logrange
+        offset = normalised_pitch_to_offset( normalised_pitch )
         round(Int, offset)
     end
     map(offset, pitch)
 end
 
-function create_actions(data::AudioData, multiplier::Float64)
+function create_default_normanised_energy_to_pos( multiplier )
+    normalised_energy -> begin
+        normalised_energy * multiplier * 50
+    end
+end
+
+function create_actions(data::AudioData, normalised_energy_to_pos)
     actions = Vector()
     push!(actions,Dict("pos" => 50, "at" => 0))
     function action(pos, at, last_pos, last_at)
         append!(actions,peak(pos,at,last_pos,last_at))
     end
-    offsets = calculate_offsets(data.pitch)
-    factor = multiplier * 50 / ( maximum(data.energy) - minimum(data.energy) )
+    offsets = calculate_offsets(data.pitch, default_normalised_pitch_to_offset)
+    max_energy = maximum(data.energy)
+    min_energy = minimum(data.energy)
+    energy_range =  max_energy - min_energy
     last_at = 0
     last_pos = 50
     for (offset, energy, at) in zip(offsets, data.energy, data.at)
         if ( at != last_at )
             int_at2 = round(Int,( ( at + last_at ) / 2 ))
-            pos = ( energy * factor ) + offset
+            normalised_energy = ( energy - min_energy ) / energy_range
+            pos = ( normalised_energy_to_pos( normalised_energy ) ) + offset
             action( pos, int_at2, last_pos, last_at )
             last_at = int_at2
             last_pos = pos
         end
-        pos = ( energy * factor * -1 ) + offset
+        pos = ( normalised_energy_to_pos( normalised_energy ) * -1 ) + offset
         action( pos, at, last_pos, last_at )
         last_at = at
         last_pos = pos
@@ -92,7 +106,7 @@ function main(video_file::String, multiplier::Float64)
     
     data = analyze(video_file)
 
-    actions = create_actions(data, multiplier)
+    actions = create_actions(data, create_default_normanised_energy_to_pos( multiplier) )
 
     funscript = Dict(
         "metadata" => Dict(
