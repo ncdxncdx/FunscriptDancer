@@ -3,20 +3,20 @@ module FunscriptDancer
 include("AudioAnalysis.jl")
 using JSON
 
-function transform_file( path, name, transform )
-    transform_name = string(name,"_",replace(transform, ":" => "_"),".csv")
-    joinpath(path,transform_name)
+function transform_file(path, name, transform)
+    transform_name = string(name, "_", replace(transform, ":" => "_"), ".csv")
+    joinpath(path, transform_name)
 end
 
-function base_name( path )
-    (_,filename) = splitdir(path)
-    (base,_) = splitext(filename)
+function base_name(path)
+    (_, filename) = splitdir(path)
+    (base, _) = splitext(filename)
     base
 end
 
 function default_normalised_pitch_to_offset(normalised_pitch)
     range = 100
-    normalised_pitch * range + ( ( 100 - range ) / 2 )
+    normalised_pitch * range + ((100 - range) / 2)
 end
 
 struct RangeSummary
@@ -32,20 +32,20 @@ struct RangeSummary
 end
 
 function normalise(range_summary, value)
-    ( range_summary.func( value ) - range_summary.min) / range_summary.range
+    (range_summary.func(value) - range_summary.min) / range_summary.range
 end
 
-function calculate_offsets( pitch, normalised_pitch_to_offset )
+function calculate_offsets(pitch, normalised_pitch_to_offset)
     range_summary = RangeSummary(pitch, f=log)
-    function offset( value )
-        normalised_pitch = normalise( range_summary, value )
-        offset = normalised_pitch_to_offset( normalised_pitch )
+    function offset(value)
+        normalised_pitch = normalise(range_summary, value)
+        offset = normalised_pitch_to_offset(normalised_pitch)
         round(Int, offset)
     end
     map(offset, pitch)
 end
 
-function create_default_normanised_energy_to_pos( multiplier )
+function create_default_normanised_energy_to_pos(multiplier)
     normalised_energy -> begin
         normalised_energy * multiplier * 50
     end
@@ -53,74 +53,74 @@ end
 
 function create_actions(data::AudioData, normalised_energy_to_pos)
     actions = Vector()
-    push!(actions,Dict("pos" => 50, "at" => 0))
+    push!(actions, Dict("pos" => 50, "at" => 0))
     function action(pos, at, last_pos, last_at)
-        append!(actions,peak(pos,at,last_pos,last_at))
+        append!(actions, peak(pos, at, last_pos, last_at))
     end
     offsets = calculate_offsets(data.pitch, default_normalised_pitch_to_offset)
     range_summary = RangeSummary(data.energy)
     last_at = 0
     last_pos = 50
     for (offset, energy, at) in zip(offsets, data.energy, data.at)
-        
+
         # up
-        int_at2 = round(Int,( ( at + last_at ) / 2 ))
-        normalised_energy = normalise( range_summary, energy )
-        pos = ( normalised_energy_to_pos( normalised_energy ) ) + offset
-        action( pos, int_at2, last_pos, last_at )
+        int_at2 = round(Int, ((at + last_at) / 2))
+        normalised_energy = normalise(range_summary, energy)
+        pos = (normalised_energy_to_pos(normalised_energy)) + offset
+        action(pos, int_at2, last_pos, last_at)
         last_at = int_at2
         last_pos = pos
 
         # down
-        pos = ( normalised_energy_to_pos( normalised_energy ) * -1 ) + offset
-        action( pos, at, last_pos, last_at )
+        pos = (normalised_energy_to_pos(normalised_energy) * -1) + offset
+        action(pos, at, last_pos, last_at)
         last_at = at
         last_pos = pos
     end
     actions
 end
 
-function peak( pos, at, last_pos, last_at )
+function peak(pos, at, last_pos, last_at)
     actions = Vector()
     function action(pos, at)
         push!(actions, (Dict("pos" => round(Int, pos), "at" => round(Int, at))))
     end
-    if ( last_pos < 0 )
-        tmp_at = int_at( pos, at, last_pos, last_at, 0 )
-        action( 0, tmp_at )
-    elseif ( last_pos > 100 )
-        tmp_at = int_at( pos, at, last_pos, last_at, 100 )
-        action( 100, tmp_at )
+    if (last_pos < 0)
+        tmp_at = int_at(pos, at, last_pos, last_at, 0)
+        action(0, tmp_at)
+    elseif (last_pos > 100)
+        tmp_at = int_at(pos, at, last_pos, last_at, 100)
+        action(100, tmp_at)
     end
 
-    if ( pos > 100 )
-        tmp_at = int_at( pos, at, last_pos, last_at, 100 )
-        action( 100, tmp_at )
-        action( 200 - pos, at )
-    elseif ( pos < 0 )
-        tmp_at = int_at( pos, at, last_pos, last_at, 0 )
-        action( 0, tmp_at )
-        action( -pos, at )
+    if (pos > 100)
+        tmp_at = int_at(pos, at, last_pos, last_at, 100)
+        action(100, tmp_at)
+        action(200 - pos, at)
+    elseif (pos < 0)
+        tmp_at = int_at(pos, at, last_pos, last_at, 0)
+        action(0, tmp_at)
+        action(-pos, at)
     else
-        action( pos, at )
+        action(pos, at)
     end
     actions
 end
 
-function int_at( pos, at, last_pos, last_at, limit )
-    before_ratio = abs( last_pos - limit )
-    after_ratio = abs( pos - limit )
+function int_at(pos, at, last_pos, last_at, limit)
+    before_ratio = abs(last_pos - limit)
+    after_ratio = abs(pos - limit)
 
-    round(Int, ( before_ratio * at + after_ratio * last_at ) / ( after_ratio + before_ratio ) )
+    round(Int, (before_ratio * at + after_ratio * last_at) / (after_ratio + before_ratio))
 end
 
 function main(video_file::String, multiplier::Float64)
     out_path = "out"
     mkpath(out_path)
-    
+
     data = analyze(video_file)
 
-    actions = create_actions(data, create_default_normanised_energy_to_pos( multiplier) )
+    actions = create_actions(data, create_default_normanised_energy_to_pos(multiplier))
 
     funscript = Dict(
         "metadata" => Dict(
@@ -132,7 +132,7 @@ function main(video_file::String, multiplier::Float64)
             "notes" => "",
             "performers" => (),
             "script_url" => "",
-            "tags" => ("music","audio"),
+            "tags" => ("music", "audio"),
             "type" => "",
             "video_url" => ""
         ),
