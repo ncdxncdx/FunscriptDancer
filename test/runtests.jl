@@ -14,8 +14,8 @@ end
     @test FunscriptDancer.int_at(120, 40, 90, 10, 100) == 20
     @test FunscriptDancer.int_at(-20, 40, 10, 10, 0) == 20
     @test FunscriptDancer.peak(110, 50, 90, 40) == [Dict("pos" => 100, "at" => 45), Dict("pos" => 90, "at" => 50)]
-    @test FunscriptDancer.create_is_in_time_range(0, 0)(0) == true
-    @test FunscriptDancer.create_is_in_time_range(0, 0)(100) == true
-    @test FunscriptDancer.create_is_in_time_range(1000, 0)(0) == false
-    @test FunscriptDancer.create_is_in_time_range(0, 1000)(2000) == false
+    @test FunscriptDancer.is_in_time_range(0, 0, 0) == true
+    @test FunscriptDancer.is_in_time_range(100, 0, 0) == true
+    @test FunscriptDancer.is_in_time_range(0, 1000, 0) == false
+    @test FunscriptDancer.is_in_time_range(2000, 0, 1000) == false
 end

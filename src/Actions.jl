@@ -24,12 +24,11 @@ function default_normalised_pitch_to_offset(normalised_pitch)
     normalised_pitch * range + ((100 - range) / 2)
 end
 
-function create_is_in_time_range(start_time, end_time)
-    at -> (at >= start_time && (end_time == 0 || at <= end_time))
+function is_in_time_range(at, start_time, end_time)
+    at >= start_time && (end_time == 0 || at <= end_time)
 end
 
 function create_actions(data::AudioData, normalised_energy_to_pos, start_time, end_time)::Vector{Dict{String,Int}}
-    is_in_time_range = create_is_in_time_range(start_time, end_time)
     actions = Vector{Dict{String,Int}}()
     push!(actions, Dict("pos" => 50, "at" => start_time))
     function action(pos, at, last_pos, last_at)
@@ -40,7 +39,7 @@ function create_actions(data::AudioData, normalised_energy_to_pos, start_time, e
     last_at = start_time
     last_pos = 50
     for (offset, energy, at) in zip(offsets, data.energy, data.at)
-        if (is_in_time_range(at))
+        if (is_in_time_range(at, start_time, end_time))
             normalised_energy = normalise(energy)
 
             # up
