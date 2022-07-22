@@ -41,7 +41,7 @@ function create_default_normanised_energy_to_pos(multiplier)
 end
 
 function create_actions(data::AudioData, normalised_energy_to_pos)::Vector{Dict{String,Int}}
-    actions = Vector()::Vector{Dict{String,Int}}
+    actions = Vector{Dict{String,Int}}()
     push!(actions, Dict("pos" => 50, "at" => 0))
     function action(pos, at, last_pos, last_at)
         append!(actions, peak(pos, at, last_pos, last_at))
@@ -104,7 +104,7 @@ function int_at(pos, at, last_pos, last_at, limit)
     round(Int, (before_ratio * at + after_ratio * last_at) / (after_ratio + before_ratio))
 end
 
-function main(video_file::String, multiplier::Number)
+function main(video_file::String, multiplier::Real)
     out_path = "out"
     mkpath(out_path)
 
