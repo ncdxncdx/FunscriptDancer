@@ -9,6 +9,17 @@ struct AudioData
     duration::Int64
 end
 
+function transform_file(path, name, transform)
+    transform_name = string(name, "_", replace(transform, ":" => "_"), ".csv")
+    joinpath(path, transform_name)
+end
+
+function base_name(path)
+    (_, filename) = splitdir(path)
+    (base, _) = splitext(filename)
+    base
+end
+
 function analyze(video_file::String)::AudioData
     name = base_name(video_file)
     tmp_path = "tmp"
