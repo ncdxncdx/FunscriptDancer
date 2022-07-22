@@ -28,29 +28,29 @@ function is_in_time_range(at, start_time, end_time)
     at >= start_time && (end_time == 0 || at <= end_time)
 end
 
-function create_actions(data::AudioData, normalised_energy_to_pos, start_time, end_time)::Vector{Dict{String,Int}}
-    actions = Vector{Dict{String,Int}}()
-    push!(actions, Dict("pos" => 50, "at" => start_time))
+function create_actions(data::AudioData, parameters::Parameters)::Actions
+    actions = Actions()
+    push!(actions, Dict("pos" => 50, "at" => parameters.start_time))
     function action(pos, at, last_pos, last_at)
         append!(actions, peak(pos, at, last_pos, last_at))
     end
     offsets = calculate_offsets(data.pitch, default_normalised_pitch_to_offset)
     normalise = create_normalise_function(data.energy)
-    last_at = start_time
+    last_at = parameters.start_time
     last_pos = 50
     for (offset, energy, at) in zip(offsets, data.energy, data.at)
-        if (is_in_time_range(at, start_time, end_time))
+        if (is_in_time_range(at, parameters.start_time, parameters.end_time))
             normalised_energy = normalise(energy)
 
             # up
             int_at2 = round(Int, ((at + last_at) / 2))
-            pos = (normalised_energy_to_pos(normalised_energy)) + offset
+            pos = (parameters.normalised_energy_to_pos(normalised_energy)) + offset
             action(pos, int_at2, last_pos, last_at)
             last_at = int_at2
             last_pos = pos
 
             # down
-            pos = (normalised_energy_to_pos(normalised_energy) * -1) + offset
+            pos = (parameters.normalised_energy_to_pos(normalised_energy) * -1) + offset
             action(pos, at, last_pos, last_at)
             last_at = at
             last_pos = pos
@@ -59,7 +59,7 @@ function create_actions(data::AudioData, normalised_energy_to_pos, start_time, e
     actions
 end
 
-function peak(pos, at, last_pos, last_at)::Vector{Dict{String,Int}}
+function peak(pos, at, last_pos, last_at)::Actions
     actions = Vector()
     function action(pos, at)
         push!(actions, (Dict("pos" => round(Int, pos), "at" => round(Int, at))))

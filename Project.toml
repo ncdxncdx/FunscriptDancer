@@ -7,6 +7,10 @@ version = "0.1.0"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 FFMPEG = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+Observables = "510215fc-4207-5dde-b226-833fc4488ee2"
+QML = "2db162a6-7e43-52c3-8d84-290c1c42d82a"
+Qt5QuickControls2_jll = "bf3ac11c-603e-589e-b4b7-e696ac65aa4a"
+Qt5QuickControls_jll = "e4aecf45-a397-53cc-864f-87db395e0248"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
 [compat]

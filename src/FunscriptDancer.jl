@@ -1,18 +1,52 @@
-module FunscriptDancer
+# module FunscriptDancer
+
+using Observables
+using JSON
+using QML
+using Qt5QuickControls_jll
+
+struct Parameters
+    start_time
+    end_time
+    normalised_energy_to_pos
+end
+
+const Actions = Vector{Dict{String,Int}}
 
 include("AudioAnalysis.jl")
 include("Actions.jl")
 
-using JSON
+#= const empty_audio_data = AudioData(Vector(),Vector(),Vector(),"",0)
+const empty_parameters = Parameters(0,0,x->x)
+const empty_actions = Vector{Dict{String,Int}}() =#
 
-function main(video_file::String; multiplier::Real=1, start_time::Real=0, end_time::Real=0)
-    out_path = "out"
+audio_data = Observable{Union{Nothing,AudioData}}(nothing)
+parameters = Observable{Union{Nothing,Parameters}}(nothing)
+actions = Observable{Union{Nothing,Actions}}(nothing)
+
+function main(; multiplier::Real=1, start_time::Real=0, end_time::Real=0)
+    parameters[] = Parameters(start_time, end_time, create_default_normalised_energy_to_pos(multiplier))
+end
+
+function open_file(uri)
+    video_file = String(QString(uri))
+    audio_data[] = analyze(video_file)
+end
+
+onany(audio_data, parameters) do data, parms
+    if (data !== nothing && parms !== nothing)
+        actions[] = create_actions(data, parms)
+    end
+end
+
+on(actions) do acts
+    if (acts !== nothing)
+        write_funscript(audio_data[], acts)
+    end
+end
+
+function write_funscript(data::AudioData, actions::Actions, out_path::String="out")
     mkpath(out_path)
-
-    data = analyze(video_file)
-
-    actions = create_actions(data, create_default_normalised_energy_to_pos(multiplier), start_time,end_time)
-
     funscript = Dict(
         "metadata" => Dict(
             "creator" => "FunscriptDancer",
@@ -40,5 +74,11 @@ function main(video_file::String; multiplier::Real=1, start_time::Real=0, end_ti
     close(funscript_file)
 end
 
+@qmlfunction open_file
 
-end # module
+qml_file = joinpath(dirname(Base.source_path()), "qml", "funscript_dancer.qml")
+
+loadqml(qml_file)
+exec()
+
+# end # module
