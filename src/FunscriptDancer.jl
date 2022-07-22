@@ -1,5 +1,3 @@
-# module FunscriptDancer
-
 using Observables
 using JSON
 using QML
@@ -15,10 +13,6 @@ const Actions = Vector{Dict{String,Int}}
 
 include("AudioAnalysis.jl")
 include("Actions.jl")
-
-#= const empty_audio_data = AudioData(Vector(),Vector(),Vector(),"",0)
-const empty_parameters = Parameters(0,0,x->x)
-const empty_actions = Vector{Dict{String,Int}}() =#
 
 audio_data = Observable{Union{Nothing,AudioData}}(nothing)
 parameters = Observable{Union{Nothing,Parameters}}(nothing)
@@ -80,5 +74,3 @@ qml_file = joinpath(dirname(Base.source_path()), "qml", "funscript_dancer.qml")
 
 loadqml(qml_file)
 exec()
-
-# end # module
