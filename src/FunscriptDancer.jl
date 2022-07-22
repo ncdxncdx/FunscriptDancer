@@ -5,13 +5,13 @@ include("Actions.jl")
 
 using JSON
 
-function main(video_file::String, multiplier::Real)
+function main(video_file::String; multiplier::Real=1, start_time::Real=0, end_time::Real=0)
     out_path = "out"
     mkpath(out_path)
 
     data = analyze(video_file)
 
-    actions = create_actions(data, create_default_normanised_energy_to_pos(multiplier))
+    actions = create_actions(data, create_default_normalised_energy_to_pos(multiplier), start_time,end_time)
 
     funscript = Dict(
         "metadata" => Dict(
