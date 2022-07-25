@@ -2,6 +2,7 @@ using Observables
 using JSON
 using QML
 using Qt5QuickControls_jll
+using Qt5QuickControls2_jll
 
 struct Parameters
     start_time
@@ -14,9 +15,9 @@ const Actions = Vector{Dict{String,Int}}
 include("AudioAnalysis.jl")
 include("Actions.jl")
 
-audio_data = Observable{Union{Nothing,AudioData}}(nothing)
-parameters = Observable{Union{Nothing,Parameters}}(nothing)
-actions = Observable{Union{Nothing,Actions}}(nothing)
+audio_data = Observable{Union{AudioData,Nothing}}(nothing)
+parameters = Observable{Union{Parameters,Nothing}}(nothing)
+actions = Observable{Union{Actions,Nothing}}(nothing)
 
 function main(; multiplier::Real=1, start_time::Real=0, end_time::Real=0)
     parameters[] = Parameters(start_time, end_time, create_default_normalised_energy_to_pos(multiplier))
@@ -24,23 +25,32 @@ end
 
 function open_file(uri)
     video_file = String(QString(uri))
-    audio_data[] = analyze(video_file)
+    for status in Channel{String}(channel -> audio_data[] = analyze(video_file, channel))
+        println(status)
+        @emit loadStatus(status)
+    end
 end
 
-onany(audio_data, parameters) do data, parms
-    if (data !== nothing && parms !== nothing)
+on(audio_data) do data
+    if (data !== nothing && parameters[] !== nothing)
+        actions[] = create_actions(data, parms)
+    end
+end
+
+on(parameters) do parms
+    if (audio_data[] !== nothing && parms !== nothing)
         actions[] = create_actions(data, parms)
     end
 end
 
 on(actions) do acts
     if (acts !== nothing)
-        write_funscript(audio_data[], acts)
+        save_funscript(audio_data[], acts)
     end
 end
 
-function write_funscript(data::AudioData, actions::Actions, out_path::String="out")
-    mkpath(out_path)
+function save_funscript(uri)
+    funscript_filename = String(QString(uri))
     funscript = Dict(
         "metadata" => Dict(
             "creator" => "FunscriptDancer",
@@ -63,12 +73,12 @@ function write_funscript(data::AudioData, actions::Actions, out_path::String="ou
 
     funscript_json = JSON.json(funscript)
 
-    funscript_file = open(joinpath(out_path, string(data.name, ".funscript")), "w")
+    funscript_file = open(funscript_filename, "w")
     write(funscript_file, funscript_json)
     close(funscript_file)
 end
 
-@qmlfunction open_file
+@qmlfunction open_file save_funscript
 
 qml_file = joinpath(dirname(Base.source_path()), "qml", "funscript_dancer.qml")
 

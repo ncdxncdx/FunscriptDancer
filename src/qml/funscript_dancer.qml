@@ -1,27 +1,129 @@
-import QtQuick 2.2
-import QtQuick.Dialogs 1.0
-import QtQuick.Controls 1.0
+import QtQuick 2.15
+import QtQuick.Window 2.15
+import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.15
+import QtQuick.Dialogs 1.3
 import org.julialang 1.0
 
 ApplicationWindow {
-  title: "FileDialog"
-  width: 640
-  height: 480
-  visible: true
+    visible: true
+    minimumWidth: 640
+    minimumHeight: 480
+    title: qsTr("Hello World")
 
-  FileDialog {
-      id: fileDialog
-      title: "Please choose a media file"
-      selectMultiple: false
-      folder: shortcuts.home
-      onAccepted: {
-          Julia.open_file(fileDialog.fileUrl)
-          Qt.quit()
-      }
-      onRejected: {
-          console.log("Canceled")
-          Qt.quit()
-      }
-      Component.onCompleted: visible = true
-  }
+    JuliaSignals {
+        signal  loadStatus(var status)
+        onLoadStatus: loadStatus.text=status
+    }
+
+    ColumnLayout {
+        anchors.fill: parent
+        GroupBox {
+            title: "Audio processing"
+            Layout.fillWidth: true
+            RowLayout {
+                Button {
+                    id: loadButton
+                    text: "Load"
+                    onClicked: openDialog.open()
+                }
+                ColumnLayout {
+                    TextArea {
+                        id: loadStatus
+                        text: "No media loaded"
+                        Layout.fillWidth: true
+                    }
+                    ProgressBar {
+                        id: loadProgress
+                        from: 0
+                        to: 4
+                        Layout.fillWidth: true
+                    }
+                }
+            }
+        }
+        GroupBox {
+            id: audioPreview
+            title: "Audio preview and cropping"
+            Layout.fillWidth: true
+            enabled: false
+            ColumnLayout {
+                anchors.fill: parent
+                Canvas {
+                    id: audioAnalysisCanvas
+                    Layout.fillWidth: true
+                }
+                RangeSlider {
+                    id: audioSlider
+                    Layout.fillWidth: true
+                }
+            }
+        }
+        GroupBox {
+            id: funscript
+            title: "Funscript generation"
+            Layout.fillWidth: true
+            enabled: false
+            ColumnLayout {
+                anchors.fill: parent
+                Slider {
+                    id: multiplierSlider
+                    Layout.fillWidth: true
+                }
+
+                Canvas {
+                    id: heatmapCanvas
+                    Layout.fillWidth: true
+                }
+            }
+        }
+        GroupBox {
+            id: save
+            title: "Export files"
+            Layout.fillWidth: true
+            enabled: false
+            RowLayout {
+                Layout.fillWidth: true
+                Button {
+                    id: saveFunscript
+                    text: "Save Funscript"
+                    onClicked: funscriptSaveDialog.open()
+                }
+                Button {
+                    id: saveHeatmap
+                    text: "Save heatmap"
+                    onClicked: heatmapSaveDialog.open()
+                }
+            }
+        }
+    }
+    FileDialog {
+        id: openDialog
+        title: "Choose a media file"
+        nameFilters: ["Media files (*.mp4 *.avi *.mkv *.ogm *.mpg *.mpeg *.mov *.mp3 *.aac *.wav)","All files (*)"]
+        folder: shortcuts.home
+        onAccepted: {
+            Julia.open_file(openDialog.fileUrl)
+        }
+    }
+
+    FileDialog {
+        id: funscriptSaveDialog
+        title: "Choose a location to save the Funscript"
+        defaultSuffix: "funscript"
+        folder: shortcuts.home
+        onAccepted: {
+            Julia.save_funscript(funscriptSaveDialog.fileUrl)
+        }
+    }
+
+    FileDialog {
+        id: heatmapSaveDialog
+        title: "Choose a location to save the heatmap"
+        defaultSuffix: "png"
+        folder: shortcuts.home
+        onAccepted: {
+            Julia.save_heatmap(heatmapSaveDialog.fileUrl)
+        }
+    }
 }
