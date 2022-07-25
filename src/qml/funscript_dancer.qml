@@ -9,16 +9,20 @@ ApplicationWindow {
     visible: true
     minimumWidth: 640
     minimumHeight: 480
-    title: qsTr("Hello World")
+    id: applicationWindow
+    title: qsTr("FunscriptDancer")
 
     JuliaSignals {
         signal loadStatus(var msg, var position)
-        signal audioDataReady(var audioData)
+        signal audioDataReady(var name)
         onLoadStatus: {
             loadStatus.text=msg
             loadProgress.value=position
         }
-        onAudioDataReady: audioPreview.enabled=true
+        onAudioDataReady: {
+            audioPreview.enabled=true
+            applicationWindow.title=qsTr("Funscript Dancer - " + name)
+        }
     }
 
     ColumnLayout {

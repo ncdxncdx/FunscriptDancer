@@ -40,9 +40,11 @@ function open_file(uri)
 end
 
 on(audio_data) do data
-    @emit audioDataReady(audio_data)
-    if (data !== nothing && parameters[] !== nothing)
-        actions[] = create_actions(data, parms)
+    if (data !== nothing)
+        @emit audioDataReady(data.name) 
+        if (parameters[] !== nothing)
+            actions[] = create_actions(data, parms)
+        end
     end
 end
 
