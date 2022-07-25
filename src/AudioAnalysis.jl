@@ -37,8 +37,12 @@ function analyze(video_file::String, load_status::Channel{String})::AudioData
 
     total_duration = begin
         output = FFMPEG.exe("-i", video_file, "-show_entries", "format=duration", "-v", "quiet", "-of", "csv=p=0", command=FFMPEG.ffprobe, collect=true)
-        duration_seconds = parse(Float32, output[1])
-        round(Int, duration_seconds * 1000)
+        try
+            duration_seconds = parse(Float32, output[1])
+            round(Int, duration_seconds * 1000)
+        catch
+            throw("Cannot read file - is it a media file?")
+        end
     end
     put!(load_status,"Media duration: $total_duration")
 

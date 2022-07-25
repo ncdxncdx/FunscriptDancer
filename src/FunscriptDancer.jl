@@ -25,7 +25,15 @@ end
 
 function open_file(uri)
     video_file = String(QString(uri))
-    for status in Channel{String}(channel -> audio_data[] = analyze(video_file, channel))
+    function run_analysis(load_status::Channel{String})
+        try
+            audio_data[] = analyze(video_file, load_status)
+        catch e
+            put!(load_status, "Error analysing the file: $e")
+        end
+    end
+    load_status = Channel{String}(run_analysis, spawn=true)
+    for status in load_status
         println(status)
         @emit loadStatus(status)
     end
