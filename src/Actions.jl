@@ -1,3 +1,5 @@
+const Actions = Vector{Dict{String,Int}}
+
 function create_normalise_function(values; f=x -> x)
     max = f(maximum(values))
     min = f(minimum(values))
@@ -29,6 +31,7 @@ function is_in_time_range(at, start_time, end_time)
 end
 
 function create_actions(data::AudioData, parameters::Parameters)::Actions
+    normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
     actions = Actions()
     push!(actions, Dict("pos" => 50, "at" => parameters.start_time))
     function action(pos, at, last_pos, last_at)
@@ -44,13 +47,13 @@ function create_actions(data::AudioData, parameters::Parameters)::Actions
 
             # up
             int_at2 = round(Int, ((at + last_at) / 2))
-            pos = (parameters.normalised_energy_to_pos(normalised_energy)) + offset
+            pos = (normalised_energy_to_pos(normalised_energy)) + offset
             action(pos, int_at2, last_pos, last_at)
             last_at = int_at2
             last_pos = pos
 
             # down
-            pos = (parameters.normalised_energy_to_pos(normalised_energy) * -1) + offset
+            pos = (normalised_energy_to_pos(normalised_energy) * -1) + offset
             action(pos, at, last_pos, last_at)
             last_at = at
             last_pos = pos

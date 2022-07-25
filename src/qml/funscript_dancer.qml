@@ -14,7 +14,8 @@ ApplicationWindow {
 
     JuliaSignals {
         signal loadStatus(var msg, var position)
-        signal audioDataReady(var name)
+        signal audioDataReady(var name, var duration)
+        signal actionsReady()
         onLoadStatus: {
             loadStatus.text=msg
             loadProgress.value=position
@@ -22,6 +23,10 @@ ApplicationWindow {
         onAudioDataReady: {
             audioPreview.enabled=true
             applicationWindow.title=qsTr("Funscript Dancer - " + name)
+        }
+        onActionsReady: {
+            funscript.enabled=true
+            save.enabled=true
         }
     }
 
@@ -120,6 +125,7 @@ ApplicationWindow {
         id: funscriptSaveDialog
         title: "Choose a location to save the Funscript"
         defaultSuffix: "funscript"
+        selectExisting: false
         folder: shortcuts.home
         onAccepted: {
             Julia.save_funscript(funscriptSaveDialog.fileUrl)
@@ -130,6 +136,7 @@ ApplicationWindow {
         id: heatmapSaveDialog
         title: "Choose a location to save the heatmap"
         defaultSuffix: "png"
+        selectExisting: false
         folder: shortcuts.home
         onAccepted: {
             Julia.save_heatmap(heatmapSaveDialog.fileUrl)
