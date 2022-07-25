@@ -21,7 +21,12 @@ function base_name(path)
     base
 end
 
-function analyze(video_file::String, load_status::Channel{String})::AudioData
+struct LoadStatus
+    msg::String
+    position::Float64
+end
+
+function load_audio_data(video_file::String, load_status::Channel{LoadStatus})::AudioData
     name = base_name(video_file)
     tmp_path = "tmp"
     audio_file = joinpath(tmp_path, string(name, ".wav"))
@@ -44,17 +49,17 @@ function analyze(video_file::String, load_status::Channel{String})::AudioData
             throw("Cannot read file - is it a media file?")
         end
     end
-    put!(load_status,"Media duration: $total_duration")
+    put!(load_status,LoadStatus("Media duration: $total_duration",1))
 
     if !(isfile(energy_file) && isfile(pitch_file))
         ffmpeg_exe("-i", video_file, "-vn", audio_file)
-        put!(load_status,"Extracted audio")
+        put!(load_status,LoadStatus("Extracted audio",2))
         run(`sonic-annotator -d "$beat_transform" -w csv --csv-force "$audio_file"`)
-        put!(load_status,"Computed beats")
+        put!(load_status,LoadStatus("Computed beats",3))
         run(`sonic-annotator -d "$energy_transform" -S sum --summary-only --segments-from "$beat_file"  -w csv --csv-force "$audio_file"`)
-        put!(load_status,"Computed RMS energy")
+        put!(load_status,LoadStatus("Computed RMS energy",4))
         run(`sonic-annotator -d "$pitch_transform" -S mean --summary-only --segments-from "$beat_file"  -w csv --csv-force "$audio_file"`)
-        put!(load_status,"Computed pitch")
+        put!(load_status,LoadStatus("Computed pitch",5))
     end
 
     rm(audio_file, force=true)
@@ -66,7 +71,7 @@ function analyze(video_file::String, load_status::Channel{String})::AudioData
     end_time = map(energy[:start_time], energy[:duration]) do time, duration
         round(Int, (time + duration) * 1000)
     end
-    put!(load_status,"Loaded audio analysis")
+    put!(load_status,LoadStatus("Loaded audio analysis",6))
 
     return AudioData(pitch[:value], energy[:value], end_time, name, total_duration)
 end

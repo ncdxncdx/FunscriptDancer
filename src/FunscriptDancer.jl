@@ -25,21 +25,22 @@ end
 
 function open_file(uri)
     video_file = String(QString(uri))
-    function run_analysis(load_status::Channel{String})
+    function wrap_load_audio_data(load_status::Channel{LoadStatus})
         try
-            audio_data[] = analyze(video_file, load_status)
+            audio_data[] = load_audio_data(video_file, load_status)
         catch e
             put!(load_status, "Error analysing the file: $e")
         end
     end
-    load_status = Channel{String}(run_analysis, spawn=true)
+    load_status = Channel{LoadStatus}(wrap_load_audio_data, spawn=true)
     for status in load_status
         println(status)
-        @emit loadStatus(status)
+        @emit loadStatus(status.msg, status.position)
     end
 end
 
 on(audio_data) do data
+    @emit audioDataReady(audio_data)
     if (data !== nothing && parameters[] !== nothing)
         actions[] = create_actions(data, parms)
     end

@@ -12,8 +12,13 @@ ApplicationWindow {
     title: qsTr("Hello World")
 
     JuliaSignals {
-        signal  loadStatus(var status)
-        onLoadStatus: loadStatus.text=status
+        signal loadStatus(var msg, var position)
+        signal audioDataReady(var audioData)
+        onLoadStatus: {
+            loadStatus.text=msg
+            loadProgress.value=position
+        }
+        onAudioDataReady: audioPreview.enabled=true
     }
 
     ColumnLayout {
@@ -36,7 +41,7 @@ ApplicationWindow {
                     ProgressBar {
                         id: loadProgress
                         from: 0
-                        to: 4
+                        to: 6
                         Layout.fillWidth: true
                     }
                 }
