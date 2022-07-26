@@ -1,8 +1,7 @@
+module FunscriptDancer
+
 using Observables
 using JSON
-using QML
-using Qt5QuickControls_jll
-using Qt5QuickControls2_jll
 
 struct Parameters
     start_time
@@ -29,12 +28,12 @@ end
 
 on(load_status) do status
     println(status)
-    @emit loadStatus(status.msg, status.position)
+    # update UI
 end
 
 on(audio_data) do data
     if (data !== nothing)
-        @emit audioDataReady(data.name, data.duration)
+        # update UI
         if (parameters[] !== nothing)
             actions[] = create_actions(data, parameters[])
         else
@@ -51,16 +50,11 @@ end
 
 on(actions) do acts
     if (acts !== nothing)
-        @emit actionsReady()
+        #update UI
     end
 end
 
-function munge_URI(uri::String)
-    joinpath(split(SubString(uri,8)))
-end
-
-function save_funscript(uri)
-    funscript_filename = munge_URI(String(QString(uri)))
+function save_funscript(funscript_filename::String)
     funscript = Dict(
         "metadata" => Dict(
             "creator" => "FunscriptDancer",
@@ -88,13 +82,9 @@ function save_funscript(uri)
     close(funscript_file)
 end
 
-@qmlfunction open_file save_funscript
-
-qml_file = joinpath(dirname(Base.source_path()), "qml", "funscript_dancer.qml")
-
-loadqml(qml_file)
-if isinteractive()
-    exec_async()
-else
-    exec()
+function julia_main()::Cint
+    # start UI
+    return 0
 end
+
+end # module

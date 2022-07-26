@@ -1,7 +1,8 @@
 using FunscriptDancer
 using Test
 
-@testset "FunscriptDancer.jl" begin end
+@testset "FunscriptDancer.jl" begin
+end
 
 @testset "AudioAnalysis.jl" begin
     @test FunscriptDancer.transform_file("path", "name", "vamp:vamp-aubio:aubiotempo:beats") == "path/name_vamp_vamp-aubio_aubiotempo_beats.csv"
