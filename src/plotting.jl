@@ -12,7 +12,8 @@ end
 
 function draw_audio(audio_data::AudioData, w, h)
     figure = Figure(resolution=(w, h))
-    axis = Axis(figure[1, 1], xlabel="ms")
+    num_ticks = round(Int,audio_data.duration / 1000 / 60 * 4)
+    axis = Axis(figure[1, 1], xlabel="s", xticks=MultiplesTicks(num_ticks, 1000,""))
     xlims!(axis, 0, audio_data.duration)
     ylims!(
         axis,

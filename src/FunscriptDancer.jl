@@ -56,6 +56,14 @@ function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
     function on(func, signal)
         preserve(map(func, signal))
     end
+    function make_canvas(anchor)
+        canvas =GtkCanvas()
+        box = builder[anchor]
+        push!(box, canvas)
+        set_gtk_property!(box, :expand, canvas, true)
+        canvas
+    end
+    audio_canvas = make_canvas("audio.view")
     on(load_status_s) do status
         status_text = builder["open.status"]
         progress_bar = builder["open.progress"]
@@ -68,15 +76,12 @@ function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
     on(audio_data_s) do data
         parameters = value(parameters_s)
         if (data.duration != 0)
-            canvas = GtkCanvas()
-            box = builder["audio.view"]
-            push!(box, canvas)
-            set_gtk_property!(box, :expand, canvas, true)
-            h = Gtk.height(canvas)
-            w = Gtk.width(canvas)
+            
+            h = Gtk.height(audio_canvas)
+            w = Gtk.width(audio_canvas)
             figure = draw_audio(data, w, h)
-            drawonto!(canvas, figure)
-            show(canvas)
+            drawonto!(audio_canvas, figure)
+            show(audio_canvas)
             push!(actions_s, create_actions(data, value(parameters)))
         end
     end
