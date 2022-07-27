@@ -4,3 +4,4 @@ debug
 target/
 /Manifest.toml
 *\~
+*\#

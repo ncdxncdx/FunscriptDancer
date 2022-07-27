@@ -1,4 +1,8 @@
-const Actions = Vector{Dict{String,Int}}
+struct Action
+    pos::Int
+    at::Int
+end
+const Actions = Vector{Action}
 
 function create_normalise_function(values; f=x -> x)
     max = f(maximum(values))
@@ -33,7 +37,7 @@ end
 function create_actions(data::AudioData, parameters::Parameters)::Actions
     normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
     actions = Actions()
-    push!(actions, Dict("pos" => 50, "at" => parameters.start_time))
+    push!(actions, Action(50, parameters.start_time))
     function action(pos, at, last_pos, last_at)
         append!(actions, peak(pos, at, last_pos, last_at))
     end
@@ -65,7 +69,7 @@ end
 function peak(pos, at, last_pos, last_at)::Actions
     actions = Vector()
     function action(pos, at)
-        push!(actions, (Dict("pos" => round(Int, pos), "at" => round(Int, at))))
+        push!(actions, Action(round(Int, pos), round(Int, at)))
     end
     if (last_pos < 0)
         tmp_at = int_at(pos, at, last_pos, last_at, 0)

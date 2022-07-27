@@ -1,6 +1,6 @@
 using FFMPEG
 using CSV
-using Observables
+using Reactive
 
 struct AudioData
     pitch::Vector{Float64}
@@ -8,6 +8,11 @@ struct AudioData
     at::Vector{Int64}
     name::String
     duration::Int64
+end
+
+struct LoadStatus
+    msg::String
+    position::Float64
 end
 
 function transform_file(path, name, transform)
@@ -21,12 +26,10 @@ function base_name(path)
     base
 end
 
-struct LoadStatus
-    msg::String
-    position::Float64
-end
-
-function load_audio_data(video_file::String, load_status::Observable{LoadStatus})::AudioData
+function load_audio_data(video_file::String, load_status::Signal{LoadStatus})::AudioData
+    function update_load_status!(msg, progress)
+        push!(load_status, LoadStatus(msg, progress / 6))
+    end
     name = base_name(video_file)
     tmp_path = "tmp"
     audio_file = joinpath(tmp_path, string(name, ".wav"))
@@ -49,17 +52,17 @@ function load_audio_data(video_file::String, load_status::Observable{LoadStatus}
             throw("Cannot read file - is it a media file?")
         end
     end
-    load_status[] = LoadStatus("Media duration: $total_duration",1)
+    update_load_status!("Media duration: $total_duration", 1)
 
     if !(isfile(energy_file) && isfile(pitch_file))
         ffmpeg_exe("-i", video_file, "-vn", audio_file)
-        load_status[] = LoadStatus("Extracted audio",2)
+        update_load_status!("Extracted audio", 2)
         run(`sonic-annotator -d "$beat_transform" -w csv --csv-force "$audio_file"`)
-        load_status[] = LoadStatus("Computed beats",3)
+        update_load_status!("Computed beats", 3)
         run(`sonic-annotator -d "$energy_transform" -S sum --summary-only --segments-from "$beat_file"  -w csv --csv-force "$audio_file"`)
-        load_status[] = LoadStatus("Computed RMS energy",4)
+        update_load_status!("Computed RMS energy", 4)
         run(`sonic-annotator -d "$pitch_transform" -S mean --summary-only --segments-from "$beat_file"  -w csv --csv-force "$audio_file"`)
-        load_status[] = LoadStatus("Computed pitch",5)
+        update_load_status!("Computed pitch", 5)
     end
 
     rm(audio_file, force=true)
@@ -71,7 +74,7 @@ function load_audio_data(video_file::String, load_status::Observable{LoadStatus}
     end_time = map(energy[:start_time], energy[:duration]) do time, duration
         round(Int, (time + duration) * 1000)
     end
-    load_status[] = LoadStatus("Loaded audio analysis",6)
+    update_load_status!("Loaded audio analysis", 6)
 
     return AudioData(pitch[:value], energy[:value], end_time, name, total_duration)
 end
