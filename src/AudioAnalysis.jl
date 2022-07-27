@@ -7,11 +7,15 @@ struct AudioDatum{T<:Real}
     maximum::T
     minimum::T
 end
-AudioDatum(values::Vector{T}) where {T<:Real} = AudioDatum(
-    values,
-    maximum(values),
-    minimum(values)
-)
+AudioDatum(values::Vector{T}) where {T<:Real} = begin
+    max = if (length(values) != 0) maximum(values) else T(0) end
+    min = if (length(values) != 0) minimum(values) else T(0) end
+    AudioDatum(
+        values,
+        max,
+        min
+    )
+end
 Base.:(==)(a::AudioDatum, b::AudioDatum) = a.values == b.values && a.maximum == b.maximum && a.minimum == b.minimum
 
 struct AudioData

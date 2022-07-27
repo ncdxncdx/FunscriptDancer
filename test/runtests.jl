@@ -8,6 +8,7 @@ using Test
 @testset "AudioAnalysis.jl" begin
     @test transform_file("path", "name", "vamp:vamp-aubio:aubiotempo:beats") == "path/name_vamp_vamp-aubio_aubiotempo_beats.csv"
     @test base_name("foo/bar/baz.mp4") == "baz"
+    @test AudioDatum(Vector{Float64}()) == AudioDatum(Vector{Float64}(),0.0,0.0)
     @test AudioData([1000.0, 10000.0], [4.0, 5.0], [1, 2, 3], "foobar", 4) == AudioData(
         AudioDatum([3.0, 4.0], 4.0, 3.0),
         AudioDatum([4.0, 5.0], 5.0, 4.0),
