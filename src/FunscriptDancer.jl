@@ -12,6 +12,7 @@ end
 
 include("AudioAnalysis.jl")
 include("Actions.jl")
+include("plotting.jl")
 
 struct Signals
     audio_data::Signal{AudioData}
@@ -67,7 +68,15 @@ function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
     on(audio_data_s) do data
         parameters = value(parameters_s)
         if (data.duration != 0)
-            # update UI
+            canvas = GtkCanvas()
+            box = builder["audio.view"]
+            push!(box, canvas)
+            set_gtk_property!(box, :expand, canvas, true)
+            h = Gtk.height(canvas)
+            w = Gtk.width(canvas)
+            figure = draw_audio(data, w, h)
+            drawonto!(canvas, figure)
+            show(canvas)
             push!(actions_s, create_actions(data, value(parameters)))
         end
     end
