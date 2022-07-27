@@ -23,7 +23,7 @@ end
 function create_signals()
     audio_data = Signal(AudioData(Vector{Float64}(), Vector{Float64}(), Vector{Int64}(), "", 0))
     parameters = Signal(Parameters(0, 0, 1))
-    actions = Signal([Action(0, 0)])
+    actions = Signal(Vector{Action}())
     load_status = Signal(LoadStatus("Ready", 0))
     Signals(audio_data, parameters, actions, load_status)
 end
@@ -57,13 +57,14 @@ function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
         preserve(map(func, signal))
     end
     function make_canvas(anchor)
-        canvas =GtkCanvas()
+        canvas = GtkCanvas()
         box = builder[anchor]
         push!(box, canvas)
         set_gtk_property!(box, :expand, canvas, true)
         canvas
     end
     audio_canvas = make_canvas("audio.view")
+    funscript_canvas = make_canvas("funscript.view")
     on(load_status_s) do status
         status_text = builder["open.status"]
         progress_bar = builder["open.progress"]
@@ -71,12 +72,12 @@ function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
         set_gtk_property!(progress_bar, :fraction, status.position)
         println(status)
         sleep(1) # Yield so the GUI updates, yes this is rubbish
+        nothing
     end
 
     on(audio_data_s) do data
         parameters = value(parameters_s)
         if (data.duration != 0)
-            
             h = Gtk.height(audio_canvas)
             w = Gtk.width(audio_canvas)
             figure = draw_audio(data, w, h)
@@ -84,6 +85,7 @@ function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
             show(audio_canvas)
             push!(actions_s, create_actions(data, value(parameters)))
         end
+        nothing
     end
 
     on(parameters_s) do parms
@@ -91,12 +93,18 @@ function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
         if (audio_data.duration != 0)
             push!(actions_s, create_actions(audio_data, parms))
         end
+        nothing
     end
 
     on(actions_s) do acts
-        if (acts !== nothing)
-            #update UI
+        if (length(acts) != 0)
+            h = Gtk.height(funscript_canvas)
+            w = Gtk.width(funscript_canvas)
+            figure = draw_funscript(acts, value(audio_data_s), w, h)
+            drawonto!(funscript_canvas, figure)
+            show(funscript_canvas)
         end
+        nothing
     end
 end
 

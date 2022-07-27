@@ -10,11 +10,16 @@ function drawonto!(canvas, figure)
     end
 end
 
-function draw_audio(audio_data::AudioData, w, h)
+function create_axis(audio_data::AudioData, w, h)
     figure = Figure(resolution=(w, h))
-    num_ticks = round(Int,audio_data.duration / 1000 / 60 * 4)
-    axis = Axis(figure[1, 1], xlabel="s", xticks=MultiplesTicks(num_ticks, 1000,""))
+    num_ticks = round(Int, audio_data.duration / 1000 / 60 * 4)
+    axis = Axis(figure[1, 1], xlabel="s", xticks=MultiplesTicks(num_ticks, 1000, ""))
     xlims!(axis, 0, audio_data.duration)
+    (axis, figure)
+end
+
+function draw_audio(audio_data::AudioData, w, h)
+    (axis, figure) = create_axis(audio_data, w, h)
     ylims!(
         axis,
         minimum([audio_data.pitch.minimum, audio_data.energy.maximum]),
@@ -24,6 +29,15 @@ function draw_audio(audio_data::AudioData, w, h)
     stairs!(axis, audio_data.at.values, audio_data.energy.values)
 
     stairs!(axis, audio_data.at.values, audio_data.pitch.values)
+
+    figure
+end
+
+function draw_funscript(actions::Actions, audio_data::AudioData, w, h)
+    (axis, figure) = create_axis(audio_data, w, h)
+    ylims!(axis, 0, 100)
+
+    lines!(axis, map(a -> a.at, actions), map(a -> a.pos, actions))
 
     figure
 end

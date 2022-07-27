@@ -39,6 +39,8 @@
   </object>
   <object class="GtkTextBuffer" id="open.status"/>
   <object class="GtkApplicationWindow" id="appwindow">
+    <property name="width-request">1024</property>
+    <property name="height-request">1024</property>
     <property name="can-focus">False</property>
     <property name="title" translatable="yes">FunscriptDancer</property>
     <property name="show-menubar">False</property>
@@ -177,6 +179,7 @@
                     </child>
                     <child>
                       <object class="GtkBox" id="audio.view">
+                        <property name="height-request">200</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="hexpand">True</property>
@@ -225,19 +228,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkDrawingArea" id="funscript.view">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="margin-top">64</property>
-                        <property name="hexpand">True</property>
-                        <property name="vexpand">True</property>
-                      </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkScale" id="funscript.energy">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
@@ -259,6 +249,23 @@
                       <packing>
                         <property name="left-attach">0</property>
                         <property name="top-attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="funscript.view">
+                        <property name="height-request">200</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">0</property>
                       </packing>
                     </child>
                   </object>
