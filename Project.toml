@@ -6,6 +6,7 @@ version = "0.1.0"
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 FFMPEG = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
+Gtk = "4c0ca9eb-093a-5379-98c5-f87ac0bbbf44"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 Observables = "510215fc-4207-5dde-b226-833fc4488ee2"
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"

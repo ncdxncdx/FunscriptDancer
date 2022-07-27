@@ -1,6 +1,6 @@
 tmp/
 out/
-tmp_jl/
-out_jl/
 debug
+target/
 /Manifest.toml
+*\~

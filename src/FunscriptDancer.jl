@@ -2,6 +2,7 @@ module FunscriptDancer
 
 using Observables
 using JSON
+using Gtk
 
 struct Parameters
     start_time
@@ -26,31 +27,34 @@ function open_file(uri)
     end
 end
 
-on(load_status) do status
-    println(status)
-    # update UI
-end
+function connect_ui(builder::GtkBuilder)
 
-on(audio_data) do data
-    if (data !== nothing)
+    on(load_status) do status
+        println(status)
         # update UI
-        if (parameters[] !== nothing)
-            actions[] = create_actions(data, parameters[])
-        else
-            parameters[] = Parameters(0, data.duration, 1)
+    end
+
+    on(audio_data) do data
+        if (data !== nothing)
+            # update UI
+            if (parameters[] !== nothing)
+                actions[] = create_actions(data, parameters[])
+            else
+                parameters[] = Parameters(0, data.duration, 1)
+            end
         end
     end
-end
 
-on(parameters) do parms
-    if (audio_data[] !== nothing && parms !== nothing)
-        actions[] = create_actions(audio_data[], parms)
+    on(parameters) do parms
+        if (audio_data[] !== nothing && parms !== nothing)
+            actions[] = create_actions(audio_data[], parms)
+        end
     end
-end
 
-on(actions) do acts
-    if (acts !== nothing)
-        #update UI
+    on(actions) do acts
+        if (acts !== nothing)
+            #update UI
+        end
     end
 end
 
@@ -84,7 +88,15 @@ end
 
 function julia_main()::Cint
     # start UI
+    glade_file = joinpath(dirname(@__FILE__), "gtk", "FunscriptDancer.glade")
+    builder = GtkBuilder(filename=glade_file)
+    connect_ui(builder)
+    app_window = builder["appwindow"]
+    showall(app_window)
+    @async Gtk.gtk_main()
+    Gtk.waitforsignal(app_window,:destroy)
     return 0
 end
+export julia_main
 
 end # module
