@@ -2,13 +2,33 @@ using FFMPEG
 using CSV
 using Reactive
 
+struct AudioDatum{T<:Real}
+    values::Vector{T}
+    maximum::T
+    minimum::T
+end
+AudioDatum(values::Vector{T}) where {T<:Real} = AudioDatum(
+    values,
+    maximum(values),
+    minimum(values)
+)
+Base.:(==)(a::AudioDatum, b::AudioDatum) = a.values == b.values && a.maximum == b.maximum && a.minimum == b.minimum
+
 struct AudioData
-    pitch::Vector{Float64}
-    energy::Vector{Float64}
-    at::Vector{Int64}
+    pitch::AudioDatum{Float64}
+    energy::AudioDatum{Float64}
+    at::AudioDatum{Int64}
     name::String
     duration::Int64
 end
+AudioData(pitch::Vector{Float64}, energy::Vector{Float64}, at::Vector{Int64}, name::String, duration::Int64) = AudioData(
+    AudioDatum(map(log10, pitch)),
+    AudioDatum(energy),
+    AudioDatum(at),
+    name,
+    duration
+)
+Base.:(==)(a::AudioData, b::AudioData) = a.pitch == b.pitch && a.energy == b.energy && a.at == b.at && a.name == b.name && a.duration == b.duration
 
 struct LoadStatus
     msg::String
