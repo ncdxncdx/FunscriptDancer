@@ -61,7 +61,7 @@ function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
         set_gtk_property!(status_text, :text, status.msg)
         set_gtk_property!(progress_bar, :fraction, status.position)
         println(status)
-        # update UI
+        sleep(1) # Yield so the GUI updates, yes this is rubbish
     end
 
     on(audio_data_s) do data
@@ -104,7 +104,7 @@ function save_funscript(funscript_filename::String, audio_data::AudioData, actio
         "range" => 100,
         "inverted" => false,
         "version" => 1.0,
-        "actions" => actions[]
+        "actions" => actions
     )
 
     funscript_json = JSON.json(funscript)
@@ -114,7 +114,6 @@ function save_funscript(funscript_filename::String, audio_data::AudioData, actio
 end
 
 function julia_main()::Cint
-    # start UI
     glade_file = joinpath(dirname(@__FILE__), "gtk", "FunscriptDancer.glade")
     builder = GtkBuilder(filename=glade_file)
     app_window = builder["appwindow"]
