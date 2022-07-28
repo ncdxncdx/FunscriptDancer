@@ -14,12 +14,10 @@
     <property name="page-increment">10</property>
   </object>
   <object class="GtkFileFilter" id="filter.media">
-    <patterns>
-      <pattern>*.mp4</pattern>
-      <pattern>*.avi</pattern>
-      <pattern>*.ogm</pattern>
-      <pattern>*.mkv</pattern>
-    </patterns>
+    <mime-types>
+      <mime-type>audio/*</mime-type>
+      <mime-type>video/*</mime-type>
+    </mime-types>
   </object>
   <object class="GtkAdjustment" id="funscript.energy.adjustment">
     <property name="upper">10</property>
@@ -36,6 +34,21 @@
   <object class="GtkFileChooserDialog" id="open.dialog">
     <property name="can-focus">False</property>
     <property name="type-hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can-focus">False</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
   </object>
   <object class="GtkTextBuffer" id="open.status"/>
   <object class="GtkApplicationWindow" id="appwindow">
