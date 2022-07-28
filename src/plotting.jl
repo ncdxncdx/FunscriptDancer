@@ -13,7 +13,14 @@ end
 function create_axis(audio_data::AudioData, w, h)
     figure = Figure(resolution=(w, h), backgroundcolor=RGBf(0.937, 0.941, 0.945))
     num_ticks = round(Int, audio_data.duration / 1000 / 60 * 4)
-    axis = Axis(figure[1, 1], xlabel="s", xticks=MultiplesTicks(num_ticks, 1000, ""), backgroundcolor=:black)
+    axis = Axis(
+        figure[1, 1],
+        xticks=MultiplesTicks(num_ticks, 1000, ""),
+        xminorticksvisible=true,
+        yticklabelsvisible=false,
+        yticksvisible=false,
+        backgroundcolor=:black
+    )
     xlims!(axis, 0, audio_data.duration)
     (axis, figure)
 end
@@ -26,9 +33,11 @@ function draw_audio(audio_data::AudioData, w, h)
         maximum([audio_data.pitch.maximum, audio_data.energy.maximum])
     )
 
-    stairs!(axis, audio_data.at.values, audio_data.energy.values)
+    stairs!(axis, audio_data.at.values, audio_data.energy.values, label="energy")
 
-    stairs!(axis, audio_data.at.values, audio_data.pitch.values)
+    stairs!(axis, audio_data.at.values, audio_data.pitch.values, label="log pitch")
+
+    axislegend(axis)
 
     figure
 end
@@ -58,10 +67,11 @@ function draw_funscript(actions::Actions, audio_data::AudioData, w, h)
     colors = calculate_speed(actions)
 
     lines!(
-        axis, 
-        map(a -> a.at, actions), 
+        axis,
+        map(a -> a.at, actions),
         map(a -> a.pos, actions),
-         colormap=:neon, color=colors, colorrange=(0,600))
+        colormap=:neon, color=colors, colorrange=(0, 600)
+    )
 
     figure
 end
