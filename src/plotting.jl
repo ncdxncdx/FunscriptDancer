@@ -11,7 +11,7 @@ function drawonto!(canvas, figure)
 end
 
 function create_axis(audio_data::AudioData, w, h)
-    figure = Figure(resolution=(w, h))
+    figure = Figure(resolution=(w, h), backgroundcolor=RGBf(0.937, 0.941, 0.945))
     num_ticks = round(Int, audio_data.duration / 1000 / 60 * 4)
     axis = Axis(figure[1, 1], xlabel="s", xticks=MultiplesTicks(num_ticks, 1000, ""), backgroundcolor=:black)
     xlims!(axis, 0, audio_data.duration)
