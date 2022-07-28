@@ -8,8 +8,11 @@ struct AudioDatum{T<:Real}
     minimum::T
 end
 AudioDatum(values::Vector{T}) where {T<:Real} = begin
-    max = if (length(values) != 0) maximum(values) else T(0) end
-    min = if (length(values) != 0) minimum(values) else T(0) end
+    (min, max) = if (length(values) != 0)
+        extrema(values)
+    else
+        (T(0), T(0))
+    end
     AudioDatum(
         values,
         max,

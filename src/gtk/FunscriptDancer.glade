@@ -80,7 +80,7 @@
                             <property name="create-folders">False</property>
                             <property name="filter">filter.media</property>
                             <property name="title" translatable="yes">Open a media file</property>
-                            <property name="width-chars">16</property>
+                            <property name="width-chars">48</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>

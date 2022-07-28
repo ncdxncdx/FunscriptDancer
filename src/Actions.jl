@@ -67,7 +67,7 @@ function create_actions(data::AudioData, parameters::Parameters)::Actions
 end
 
 function peak(pos, at, last_pos, last_at)::Actions
-    actions = Vector()
+    actions = Actions()
     function action(pos, at)
         push!(actions, Action(round(Int, pos), round(Int, at)))
     end

@@ -1,6 +1,6 @@
 using FunscriptDancer
 import FunscriptDancer: AudioDatum, AudioData, Actions, Action, Parameters
-import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions
+import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_intensity
 using Test
 
 @testset "FunscriptDancer.jl" begin end
@@ -8,7 +8,7 @@ using Test
 @testset "AudioAnalysis.jl" begin
     @test transform_file("path", "name", "vamp:vamp-aubio:aubiotempo:beats") == "path/name_vamp_vamp-aubio_aubiotempo_beats.csv"
     @test base_name("foo/bar/baz.mp4") == "baz"
-    @test AudioDatum(Vector{Float64}()) == AudioDatum(Vector{Float64}(),0.0,0.0)
+    @test AudioDatum(Vector{Float64}()) == AudioDatum(Vector{Float64}(), 0.0, 0.0)
     @test AudioData([1000.0, 10000.0], [4.0, 5.0], [1, 2, 3], "foobar", 4) == AudioData(
         AudioDatum([3.0, 4.0], 4.0, 3.0),
         AudioDatum([4.0, 5.0], 5.0, 4.0),
@@ -57,5 +57,46 @@ end
         Action(99, 450),
         Action(100, 453),
         Action(35, 600)
+    ]
+end
+
+@testset "Actions.jl - calculate intensity" begin
+    actions = [
+        Action(50, 0),
+        Action(33, 50),
+        Action(0, 75),
+        Action(33, 100),
+        Action(0, 113),
+        Action(93, 150),
+        Action(0, 196),
+        Action(7, 200),
+        Action(0, 203),
+        Action(100, 243),
+        Action(83, 250),
+        Action(100, 275),
+        Action(83, 300),
+        Action(100, 439),
+        Action(99, 450),
+        Action(100, 453),
+        Action(35, 600)
+    ]
+    @test calculate_intensity(actions) == [
+        0.0,
+        0.5666666666666667,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.2038369304556355,
+        0.15151515151515152,
+        0.5555555555555555,
+        0.7369614512471656
     ]
 end
