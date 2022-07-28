@@ -33,34 +33,35 @@ function draw_audio(audio_data::AudioData, w, h)
     figure
 end
 
-function calculate_intensity(actions::Actions)
-    function calculate_intensity(first::Action, second::Action)
+function calculate_speed(actions::Actions)
+    function calculate_speed_inner(first::Action, second::Action)
         if (first.at == second.at)
             0
         else
-            speed = 1000 * (abs(second.pos - first.pos) / abs(second.at - first.at))
-            intensity = speed / 600
-            capped_intensity = minimum([1, intensity])
-            capped_intensity
+            1000 * (abs(second.pos - first.pos) / abs(second.at - first.at))
         end
     end
 
-    intensities = Vector{Float64}()
+    speeds = Vector{Float64}()
     previous = Action(0, 0)
     for action in actions
-        push!(intensities, calculate_intensity(previous, action))
+        push!(speeds, calculate_speed_inner(previous, action))
         previous = action
     end
-    intensities
+    speeds
 end
 
 function draw_funscript(actions::Actions, audio_data::AudioData, w, h)
     (axis, figure) = create_axis(audio_data, w, h)
     ylims!(axis, 0, 100)
 
-    colors = calculate_intensity(actions)
+    colors = calculate_speed(actions)
 
-    lines!(axis, map(a -> a.at, actions), map(a -> a.pos, actions), colormap=:neon, color=colors)
+    lines!(
+        axis, 
+        map(a -> a.at, actions), 
+        map(a -> a.pos, actions),
+         colormap=:neon, color=colors, colorrange=(0,600))
 
     figure
 end

@@ -1,6 +1,6 @@
 using FunscriptDancer
 import FunscriptDancer: AudioDatum, AudioData, Actions, Action, Parameters
-import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_intensity
+import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed
 using Test
 
 @testset "FunscriptDancer.jl" begin end
@@ -80,23 +80,7 @@ end
         Action(100, 453),
         Action(35, 600)
     ]
-    @test calculate_intensity(actions) == [
-        0.0,
-        0.5666666666666667,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        0.2038369304556355,
-        0.15151515151515152,
-        0.5555555555555555,
-        0.7369614512471656
+    @test calculate_speed(actions) == [
+        0.0, 340.0, 1320.0, 1320.0, 2538.461538461538, 2513.5135135135138, 2021.7391304347827, 1750.0, 2333.3333333333335, 2500.0, 2428.5714285714284, 680.0, 680.0, 122.3021582733813, 90.9090909090909, 333.3333333333333, 442.17687074829934
     ]
 end

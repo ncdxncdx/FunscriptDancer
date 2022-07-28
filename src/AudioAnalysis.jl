@@ -1,6 +1,7 @@
 using FFMPEG
 using CSV
 using Reactive
+using DataFrames
 
 struct AudioDatum{T<:Real}
     values::Vector{T}
@@ -96,12 +97,21 @@ function load_audio_data(video_file::String, load_status::Signal{LoadStatus})::A
     rm(beat_file, force=true)
 
     headers = [:start_time, :duration, :metric, :value, :metric_description]
-    energy = CSV.File(energy_file, header=headers, select=[:value, :start_time, :duration])
-    pitch = CSV.File(pitch_file, header=headers, select=[:value])
-    end_time = map(energy[:start_time], energy[:duration]) do time, duration
+    energy = CSV.read(energy_file, DataFrame, header=headers, select=[:value, :start_time, :duration])
+    pitch = CSV.read(pitch_file, DataFrame, header=headers, select=[:value, :start_time, :duration])
+
+    joined = outerjoin(energy,pitch, on=[:start_time, :duration], renamecols=(:_energy => :_pitch))
+    sort!(joined, :start_time)
+
+    end_time::Vector{Int64} = map(joined[!,:start_time], joined[!,:duration]) do time, duration
         round(Int, (time + duration) * 1000)
     end
     update_load_status!("Loaded audio analysis", 6)
 
-    return AudioData(pitch[:value], energy[:value], end_time, name, total_duration)
+    return AudioData(
+        coalesce.(joined[!,:value_pitch],1.0), 
+        coalesce.(joined[!,:value_energy],0.0), 
+        end_time, 
+        name, 
+        total_duration)
 end
