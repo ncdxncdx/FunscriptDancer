@@ -99,7 +99,7 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
             file_name = save_dialog("Save Funscript as...", builder["appwindow"], ["*.funscript"])
 
             if !isempty(file_name)
-                save_funscript(file_name, value(audio_data_parameters_s), value(actions_s))
+                save_funscript(file_name, value(audio_data_parameters_s).first, value(actions_s))
             end
         end
     end
