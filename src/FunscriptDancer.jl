@@ -120,6 +120,14 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         end
     end
 
+    signal_connect(builder["funscript.energy.adjustment"], "value-changed") do widget
+        val = get_gtk_property(widget, :value, Float64)
+        old_parameters = value(audio_data_parameters_s).second
+        new_parameters = Parameters(old_parameters.start_time, old_parameters.end_time, val)
+        audio_data = value(audio_data_parameters_s).first
+        push!(audio_data_parameters_s, Pair(audio_data, new_parameters))
+    end
+
     on(load_status_s) do status
         status_text = builder["open.status"]
         progress_bar = builder["open.progress"]
