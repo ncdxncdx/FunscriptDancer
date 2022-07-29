@@ -1,6 +1,6 @@
 using FunscriptDancer, Test, DataFrames
 import FunscriptDancer: AudioData, Actions, Action, Parameters
-import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed, x_to_millis
+import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed, x_to_millis, create_normalised_pitch_to_offset
 
 @testset "FunscriptDancer.jl" begin
     @test x_to_millis(16, 10000, 1010) == 0
@@ -14,7 +14,7 @@ end
 end
 
 @testset "Actions.jl" begin
-    @test calculate_offsets([10, 20, 30, 20, 10], default_normalised_pitch_to_offset) == [0, 50, 100, 50, 0]
+    @test calculate_offsets([10, 20, 30, 20, 10], create_normalised_pitch_to_offset(100)) == [0, 50, 100, 50, 0]
     @test int_at(110, 20, 90, 10, 100) == 15
     @test int_at(120, 40, 90, 10, 100) == 20
     @test int_at(-20, 40, 10, 10, 0) == 20
@@ -35,7 +35,7 @@ end
             "foobar",
             4
         ),
-        Parameters(0, 0, 1)
+        Parameters(0, 0, 1, 100)
     ) == [
         Action(50, 0),
         Action(33, 50),

@@ -6,6 +6,7 @@ struct Parameters
     start_time::Int
     end_time::Int
     energy_multiplier::Real
+    pitch_range::Real
 end
 
 include("AudioAnalysis.jl")
@@ -19,7 +20,7 @@ struct Signals
     heatmap::Signal{Figure}
 end
 function create_signals()
-    audio_data_parameters = Signal(Pair(AudioData(DataFrame(), "", 0), Parameters(0, 0, 1)))
+    audio_data_parameters = Signal(Pair(AudioData(DataFrame(), "", 0), Parameters(0, 0, 1, 50)))
     actions = Signal(Vector{Action}())
     load_status = Signal(LoadStatus("Ready", 0))
     heatmap = Signal(Figure())
@@ -83,9 +84,9 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         millis = x_to_millis(event.x, audio_data.duration, width)
         println("Key press event: $(event.x), millis: $millis, width: $width, duration: $(audio_data.duration)")
         new_paramters = if event.x < width / 2
-            Parameters(millis, old_parameters.end_time, old_parameters.energy_multiplier)
+            Parameters(millis, old_parameters.end_time, old_parameters.energy_multiplier, old_parameters.pitch_range)
         else
-            Parameters(old_parameters.start_time, millis, old_parameters.energy_multiplier)
+            Parameters(old_parameters.start_time, millis, old_parameters.energy_multiplier, old_parameters.pitch_range)
         end
 
         push!(audio_data_parameters_s, Pair(audio_data, new_paramters))
@@ -123,7 +124,15 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
     signal_connect(builder["funscript.energy.adjustment"], "value-changed") do widget
         val = get_gtk_property(widget, :value, Float64)
         old_parameters = value(audio_data_parameters_s).second
-        new_parameters = Parameters(old_parameters.start_time, old_parameters.end_time, val)
+        new_parameters = Parameters(old_parameters.start_time, old_parameters.end_time, val, old_parameters.pitch_range)
+        audio_data = value(audio_data_parameters_s).first
+        push!(audio_data_parameters_s, Pair(audio_data, new_parameters))
+    end
+
+    signal_connect(builder["funscript.pitch.adjustment"], "value-changed") do widget
+        val = get_gtk_property(widget, :value, Float64)
+        old_parameters = value(audio_data_parameters_s).second
+        new_parameters = Parameters(old_parameters.start_time, old_parameters.end_time, old_parameters.energy_multiplier, val)
         audio_data = value(audio_data_parameters_s).first
         push!(audio_data_parameters_s, Pair(audio_data, new_parameters))
     end

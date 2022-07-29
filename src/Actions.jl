@@ -24,9 +24,8 @@ function create_default_normalised_energy_to_pos(multiplier)
     normalised_energy -> normalised_energy * multiplier * 50
 end
 
-function default_normalised_pitch_to_offset(normalised_pitch)
-    range = 100
-    normalised_pitch * range + ((100 - range) / 2)
+function create_normalised_pitch_to_offset(range)
+    normalised_pitch -> normalised_pitch * range + ((100 - range) / 2)
 end
 
 function is_in_time_range(at, start_time, end_time)
@@ -44,7 +43,7 @@ function create_actions(data::AudioData, parameters::Parameters)::Actions
     function action(pos, at, last_pos, last_at)
         append!(actions, peak(pos, at, last_pos, last_at))
     end
-    offsets = calculate_offsets(pitch_col, default_normalised_pitch_to_offset)
+    offsets = calculate_offsets(pitch_col, create_normalised_pitch_to_offset(parameters.pitch_range))
     normalise = create_normalise_function(energy_col)
     last_at = parameters.start_time
     last_pos = 50
