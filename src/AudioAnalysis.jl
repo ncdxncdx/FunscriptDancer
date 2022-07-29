@@ -1,9 +1,7 @@
 using FFMPEG, CSV, Reactive, DataFrames
 
 struct AudioData
-    pitch::Vector{Float64}
-    energy::Vector{Float64}
-    at::Vector{Int64}
+    frame::DataFrame
     name::String
     duration::Int64
 end
@@ -77,12 +75,17 @@ function load_audio_data(video_file::String, load_status::Signal{LoadStatus})::A
     end_time::Vector{Int64} = map(joined[!, :start_time], joined[!, :duration]) do time, duration
         round(Int, (time + duration) * 1000)
     end
+    
+    finalDataFrame = DataFrame(
+        at=end_time,
+        pitch=map(log10,coalesce.(joined[!, :value_pitch], 1.0)),
+        energy=coalesce.(joined[!, :value_energy], 0.0)
+    )
+    
     update_load_status!("Loaded audio analysis", 6)
-
+    
     return AudioData(
-        map(log10,coalesce.(joined[!, :value_pitch], 1.0)),
-        coalesce.(joined[!, :value_energy], 0.0),
-        end_time,
+        finalDataFrame,
         name,
         total_duration)
 end

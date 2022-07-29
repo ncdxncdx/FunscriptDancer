@@ -1,6 +1,6 @@
 module FunscriptDancer
 
-using Reactive, JSON, Gtk, CairoMakie
+using Reactive, JSON, Gtk, CairoMakie, DataFrames
 
 struct Parameters
     start_time::Int
@@ -20,7 +20,7 @@ struct Signals
     heatmap::Signal{Figure}
 end
 function create_signals()
-    audio_data = Signal(AudioData(Vector{Float64}(), Vector{Float64}(), Vector{Int64}(), "", 0))
+    audio_data = Signal(AudioData(DataFrame(), "", 0))
     parameters = Signal(Parameters(0, 0, 1))
     actions = Signal(Vector{Action}())
     load_status = Signal(LoadStatus("Ready", 0))
@@ -131,6 +131,7 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
     end
 
     on(parameters_s) do parms
+        show(audio_canvas)
         audio_data = value(audio_data_s)
         if (audio_data.duration != 0)
             push!(actions_s, create_actions(audio_data, parms))

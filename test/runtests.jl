@@ -1,4 +1,4 @@
-using FunscriptDancer, Test
+using FunscriptDancer, Test, DataFrames
 import FunscriptDancer: AudioData, Actions, Action, Parameters
 import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed
 
@@ -23,9 +23,11 @@ end
 
 @testset "Actions.jl - create actions" begin
     @test create_actions(AudioData(
-            [1000.0, 2000.0, 5000.0, 3000.0],
-            [4.0, 5.0, 3.0, 4.0, 2.0],
-            [100, 200, 300, 600, 700],
+            DataFrame(
+                pitch=[1000.0, 2000.0, 5000.0, 3000.0, 4000.0],
+                energy=[4.0, 5.0, 3.0, 4.0, 2.0],
+                at=[100, 200, 300, 600, 700]
+            ),
             "foobar",
             4
         ),
@@ -45,8 +47,11 @@ end
         Action(100, 275),
         Action(83, 300),
         Action(83, 450),
-        Action(17, 600)
+        Action(17, 600),
+        Action(75, 650),
+        Action(75, 700)
     ]
+
 end
 
 @testset "Plotting.jl" begin
