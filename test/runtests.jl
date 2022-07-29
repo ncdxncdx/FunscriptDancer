@@ -1,25 +1,16 @@
-using FunscriptDancer
-import FunscriptDancer: AudioDatum, AudioData, Actions, Action, Parameters
+using FunscriptDancer, Test
+import FunscriptDancer: AudioData, Actions, Action, Parameters
 import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed
-using Test
 
 @testset "FunscriptDancer.jl" begin end
 
 @testset "AudioAnalysis.jl" begin
     @test transform_file("path", "name", "vamp:vamp-aubio:aubiotempo:beats") == "path/name_vamp_vamp-aubio_aubiotempo_beats.csv"
     @test base_name("foo/bar/baz.mp4") == "baz"
-    @test AudioDatum(Vector{Float64}()) == AudioDatum(Vector{Float64}(), 0.0, 0.0)
-    @test AudioData([1000.0, 10000.0], [4.0, 5.0], [1, 2, 3], "foobar", 4) == AudioData(
-        AudioDatum([3.0, 4.0], 4.0, 3.0),
-        AudioDatum([4.0, 5.0], 5.0, 4.0),
-        AudioDatum([1, 2, 3], 3, 1),
-        "foobar",
-        4
-    )
 end
 
 @testset "Actions.jl" begin
-    @test calculate_offsets(AudioDatum([10, 20, 30, 20, 10]), default_normalised_pitch_to_offset) == [0, 50, 100, 50, 0]
+    @test calculate_offsets([10, 20, 30, 20, 10], default_normalised_pitch_to_offset) == [0, 50, 100, 50, 0]
     @test int_at(110, 20, 90, 10, 100) == 15
     @test int_at(120, 40, 90, 10, 100) == 20
     @test int_at(-20, 40, 10, 10, 0) == 20
@@ -44,22 +35,20 @@ end
         Action(33, 50),
         Action(0, 75),
         Action(33, 100),
-        Action(0, 113),
-        Action(93, 150),
-        Action(0, 196),
-        Action(7, 200),
-        Action(0, 203),
-        Action(100, 243),
+        Action(0, 115),
+        Action(75, 150),
+        Action(0, 188),
+        Action(25, 200),
+        Action(0, 209),
+        Action(100, 244),
         Action(83, 250),
         Action(100, 275),
         Action(83, 300),
-        Action(100, 439),
-        Action(99, 450),
-        Action(100, 453),
-        Action(35, 600)
+        Action(83, 450),
+        Action(17, 600)
     ]
 end
 
 @testset "Plotting.jl" begin
-    @test calculate_speed(Action(0,0),Action(100,200)) == 500
+    @test calculate_speed(Action(0, 0), Action(100, 200)) == 500
 end

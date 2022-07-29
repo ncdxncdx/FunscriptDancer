@@ -4,9 +4,8 @@ struct Action
 end
 const Actions = Vector{Action}
 
-function create_normalise_function(datum::AudioDatum)
-    max = datum.maximum
-    min = datum.minimum
+function create_normalise_function(datum::Vector{T}) where {T<:Real}
+    min, max = extrema(datum)
     range = max - min
     value -> (value - min) / range
 end
@@ -18,7 +17,7 @@ function calculate_offsets(pitch, normalised_pitch_to_offset)
         offset = normalised_pitch_to_offset(normalised_pitch)
         round(Int, offset)
     end
-    map(offset, pitch.values)
+    map(offset, pitch)
 end
 
 function create_default_normalised_energy_to_pos(multiplier)
@@ -45,7 +44,7 @@ function create_actions(data::AudioData, parameters::Parameters)::Actions
     normalise = create_normalise_function(data.energy)
     last_at = parameters.start_time
     last_pos = 50
-    for (offset, energy, at) in zip(offsets, data.energy.values, data.at.values)
+    for (offset, energy, at) in zip(offsets, data.energy, data.at)
         if (is_in_time_range(at, parameters.start_time, parameters.end_time))
             normalised_energy = normalise(energy)
 

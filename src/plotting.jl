@@ -24,17 +24,27 @@ function create_axis(audio_data::AudioData, w, h)
     (axis, figure)
 end
 
-function draw_audio(audio_data::AudioData, w, h)
+function draw_audio(audio_data::AudioData, parameters::Parameters, w, h)
+    pitch_minimum,pitch_maximum = extrema(audio_data.pitch)
+    energy_minimum,energy_maximum = extrema(audio_data.energy)
     axis, figure = create_axis(audio_data, w, h)
     ylims!(
         axis,
-        minimum([audio_data.pitch.minimum, audio_data.energy.maximum]),
-        maximum([audio_data.pitch.maximum, audio_data.energy.maximum])
+        minimum([pitch_minimum, energy_minimum]),
+        maximum([pitch_maximum, energy_maximum])
     )
 
-    stairs!(axis, audio_data.at.values, audio_data.energy.values, label="energy")
+    stairs!(axis, audio_data.at, audio_data.energy, label="energy")
 
-    stairs!(axis, audio_data.at.values, audio_data.pitch.values, label="log pitch")
+    stairs!(axis, audio_data.at, audio_data.pitch, label="log pitch")
+
+    end_time = if parameters.end_time == 0
+        audio_data.duration
+    else   
+        parameters.end_time
+    end
+
+    vlines!(axis, [parameters.start_time, end_time], color=:red)
 
     axislegend(axis)
 

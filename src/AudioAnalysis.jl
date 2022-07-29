@@ -1,38 +1,12 @@
 using FFMPEG, CSV, Reactive, DataFrames
 
-struct AudioDatum{T<:Real}
-    values::Vector{T}
-    maximum::T
-    minimum::T
-end
-AudioDatum(values::Vector{T}) where {T<:Real} = begin
-    (min, max) = if (length(values) != 0)
-        extrema(values)
-    else
-        (T(0), T(0))
-    end
-    AudioDatum(
-        values,
-        max,
-        min
-    )
-end
-Base.:(==)(a::AudioDatum, b::AudioDatum) = a.values == b.values && a.maximum == b.maximum && a.minimum == b.minimum
-
 struct AudioData
-    pitch::AudioDatum{Float64}
-    energy::AudioDatum{Float64}
-    at::AudioDatum{Int64}
+    pitch::Vector{Float64}
+    energy::Vector{Float64}
+    at::Vector{Int64}
     name::String
     duration::Int64
 end
-AudioData(pitch::Vector{Float64}, energy::Vector{Float64}, at::Vector{Int64}, name::String, duration::Int64) = AudioData(
-    AudioDatum(map(log10, pitch)),
-    AudioDatum(energy),
-    AudioDatum(at),
-    name,
-    duration
-)
 Base.:(==)(a::AudioData, b::AudioData) = a.pitch == b.pitch && a.energy == b.energy && a.at == b.at && a.name == b.name && a.duration == b.duration
 
 struct LoadStatus
@@ -97,18 +71,18 @@ function load_audio_data(video_file::String, load_status::Signal{LoadStatus})::A
     energy = CSV.read(energy_file, DataFrame, header=headers, select=[:value, :start_time, :duration])
     pitch = CSV.read(pitch_file, DataFrame, header=headers, select=[:value, :start_time, :duration])
 
-    joined = outerjoin(energy,pitch, on=[:start_time, :duration], renamecols=(:_energy => :_pitch))
+    joined = outerjoin(energy, pitch, on=[:start_time, :duration], renamecols=(:_energy => :_pitch))
     sort!(joined, :start_time)
 
-    end_time::Vector{Int64} = map(joined[!,:start_time], joined[!,:duration]) do time, duration
+    end_time::Vector{Int64} = map(joined[!, :start_time], joined[!, :duration]) do time, duration
         round(Int, (time + duration) * 1000)
     end
     update_load_status!("Loaded audio analysis", 6)
 
     return AudioData(
-        coalesce.(joined[!,:value_pitch],1.0), 
-        coalesce.(joined[!,:value_energy],0.0), 
-        end_time, 
-        name, 
+        map(log10,coalesce.(joined[!, :value_pitch], 1.0)),
+        coalesce.(joined[!, :value_energy], 0.0),
+        end_time,
+        name,
         total_duration)
 end

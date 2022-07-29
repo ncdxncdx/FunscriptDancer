@@ -3,9 +3,9 @@ module FunscriptDancer
 using Reactive, JSON, Gtk, CairoMakie
 
 struct Parameters
-    start_time
-    end_time
-    energy_multiplier
+    start_time::Int
+    end_time::Int
+    energy_multiplier::Real
 end
 
 include("AudioAnalysis.jl")
@@ -59,6 +59,24 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
     
     audio_canvas = make_canvas("audio.view")
     funscript_canvas = make_canvas("funscript.view")
+
+    audio_canvas.mouse.button1press = @guarded (widget, event) -> begin
+        ctx = getgc(widget)
+        width = Gtk.width(ctx)
+        function x_to_millis(x)::Int
+            duration = value(audio_data_s).duration
+            round(Int,x * duration / width)
+        end
+        
+        old_parameters = value(parameters_s)
+        
+        new_paramters = if event.x < width /2 
+            Parameters(x_to_millis(event.x), old_parameters.end_time, old_parameters.energy_multiplier)
+        else
+            Parameters(old_parameters.start_time, x_to_millis(event.x), old_parameters.energy_multiplier)
+        end
+        push!(parameters_s, new_paramters)
+    end
     
     signal_connect(builder["open.button"], "file-set") do widget
         val = Gtk.GAccessor.filename(Gtk.GtkFileChooser(widget))
@@ -104,7 +122,7 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         if (data.duration != 0)
             h = Gtk.height(audio_canvas)
             w = Gtk.width(audio_canvas)
-            figure = draw_audio(data, w, h)
+            figure = draw_audio(data, parameters, w, h)
             drawonto!(audio_canvas, figure)
             show(audio_canvas)
             push!(actions_s, create_actions(data, value(parameters)))
