@@ -1,8 +1,12 @@
 using FunscriptDancer, Test, DataFrames
 import FunscriptDancer: AudioData, Actions, Action, Parameters
-import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed
+import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed, x_to_millis
 
-@testset "FunscriptDancer.jl" begin end
+@testset "FunscriptDancer.jl" begin
+    @test x_to_millis(16, 10000, 1010) == 0
+    @test x_to_millis(994, 10000, 1010) == 10000
+    @test x_to_millis(505, 10000, 1010) == 5000
+end
 
 @testset "AudioAnalysis.jl" begin
     @test transform_file("path", "name", "vamp:vamp-aubio:aubiotempo:beats") == "path/name_vamp_vamp-aubio_aubiotempo_beats.csv"

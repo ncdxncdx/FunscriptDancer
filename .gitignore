@@ -6,3 +6,5 @@ target/
 *\~
 *\#
 *.tar.gz
+*.funscript
+*.png

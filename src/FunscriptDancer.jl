@@ -47,6 +47,13 @@ function redraw_audio_data(audio_canvas::GtkCanvas, data::AudioData, parameters:
     end
 end
 
+# It doesn't seem to be possible to get a plot width
+# so assume a margin and use that to map position on widget to position on plot
+const margin = 16
+function x_to_millis(x, duration, width)::Int
+    round(Int, (x - margin) * duration / (width - margin * 2))
+end
+
 function connect_ui(builder::GtkBuilder, signals::Signals)
     actions_s = signals.actions
     audio_data_parameters_s = signals.audio_data_parameters
@@ -71,18 +78,16 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         audio_data = value(audio_data_parameters_s).first
         ctx = getgc(widget)
         width = Gtk.width(ctx)
-        function x_to_millis(x)::Int
-            duration = audio_data.duration
-            round(Int, x * duration / width)
-        end
 
         old_parameters = value(audio_data_parameters_s).second
-
+        millis = x_to_millis(event.x, audio_data.duration, width)
+        println("Key press event: $(event.x), millis: $millis, width: $width, duration: $(audio_data.duration)")
         new_paramters = if event.x < width / 2
-            Parameters(x_to_millis(event.x), old_parameters.end_time, old_parameters.energy_multiplier)
+            Parameters(millis, old_parameters.end_time, old_parameters.energy_multiplier)
         else
-            Parameters(old_parameters.start_time, x_to_millis(event.x), old_parameters.energy_multiplier)
+            Parameters(old_parameters.start_time, millis, old_parameters.energy_multiplier)
         end
+
         push!(audio_data_parameters_s, Pair(audio_data, new_paramters))
     end
 
