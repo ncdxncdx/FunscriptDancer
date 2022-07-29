@@ -49,8 +49,8 @@ end
 
 # It doesn't seem to be possible to get a plot width
 # so assume a margin and use that to map position on widget to position on plot
-const margin = 16
 function x_to_millis(x, duration, width)::Int
+    margin = 16
     round(Int, (x - margin) * duration / (width - margin * 2))
 end
 

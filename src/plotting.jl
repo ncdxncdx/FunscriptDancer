@@ -36,11 +36,11 @@ function draw_audio(audio_data::AudioData, parameters::Parameters, w, h)
 
     end_time = if parameters.end_time == 0
         audio_data.duration
-    else   
+    else
         parameters.end_time
     end
 
-    vlines!(axis, [parameters.start_time, end_time], color=:red, label="crop")
+    vlines!(axis, [parameters.start_time, end_time], color=:sienna1, linewidth=1, label="crop")
 
     axislegend(axis)
 
@@ -64,9 +64,9 @@ function draw_funscript(actions::Actions, audio_data::AudioData, w, h)
         color = calculate_speed(previous, action)
         lines!(
             axis,
-            [previous.at,action.at],
-            [previous.pos,action.pos],
-            colormap=:turbo, color=[color,color], colorrange=(0, 600)
+            [previous.at, action.at],
+            [previous.pos, action.pos],
+            colormap=:turbo, color=[color, color], colorrange=(0, 600)
         )
         previous = action
     end
