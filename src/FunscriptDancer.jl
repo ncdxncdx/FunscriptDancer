@@ -13,36 +13,43 @@ include("Actions.jl")
 include("plotting.jl")
 
 struct Signals
-    audio_data::Signal{AudioData}
-    parameters::Signal{Parameters}
+    audio_data_parameters::Signal{Pair{AudioData,Parameters}}
     actions::Signal{Actions}
     load_status::Signal{LoadStatus}
     heatmap::Signal{Figure}
 end
 function create_signals()
-    audio_data = Signal(AudioData(DataFrame(), "", 0))
-    parameters = Signal(Parameters(0, 0, 1))
+    audio_data_parameters = Signal(Pair(AudioData(DataFrame(), "", 0), Parameters(0, 0, 1)))
     actions = Signal(Vector{Action}())
     load_status = Signal(LoadStatus("Ready", 0))
     heatmap = Signal(Figure())
-    Signals(audio_data, parameters, actions, load_status, heatmap)
+    Signals(audio_data_parameters, actions, load_status, heatmap)
 end
 
 function open_file(filename::AbstractString, signals::Signals)
     println("Opening $filename")
-    audio_data = signals.audio_data
-    load_status = signals.load_status
+    adp_s = signals.audio_data_parameters
+    load_status_s = signals.load_status
     try
-        push!(audio_data, load_audio_data(filename, load_status))
+        push!(adp_s, Pair(load_audio_data(filename, load_status_s), value(adp_s).second))
     catch e
-        push!(load_status, LoadStatus("Error: $e", 0))
+        push!(load_status_s, LoadStatus("Error: $e", 0))
+    end
+end
+
+function redraw_audio_data(audio_canvas::GtkCanvas, data::AudioData, parameters::Parameters)
+    if (data.duration != 0)
+        h = Gtk.height(audio_canvas)
+        w = Gtk.width(audio_canvas)
+        figure = draw_audio(data, parameters, w, h)
+        drawonto!(audio_canvas, figure)
+        show(audio_canvas)
     end
 end
 
 function connect_ui(builder::GtkBuilder, signals::Signals)
-    parameters_s = signals.parameters
     actions_s = signals.actions
-    audio_data_s = signals.audio_data
+    audio_data_parameters_s = signals.audio_data_parameters
     load_status_s = signals.load_status
     heatmap_s = signals.heatmap
 
@@ -56,28 +63,29 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         set_gtk_property!(box, :expand, canvas, true)
         canvas
     end
-    
+
     audio_canvas = make_canvas("audio.view")
     funscript_canvas = make_canvas("funscript.view")
 
     audio_canvas.mouse.button1press = @guarded (widget, event) -> begin
+        audio_data = value(audio_data_parameters_s).first
         ctx = getgc(widget)
         width = Gtk.width(ctx)
         function x_to_millis(x)::Int
-            duration = value(audio_data_s).duration
-            round(Int,x * duration / width)
+            duration = audio_data.duration
+            round(Int, x * duration / width)
         end
-        
-        old_parameters = value(parameters_s)
-        
-        new_paramters = if event.x < width /2 
+
+        old_parameters = value(audio_data_parameters_s).second
+
+        new_paramters = if event.x < width / 2
             Parameters(x_to_millis(event.x), old_parameters.end_time, old_parameters.energy_multiplier)
         else
             Parameters(old_parameters.start_time, x_to_millis(event.x), old_parameters.energy_multiplier)
         end
-        push!(parameters_s, new_paramters)
+        push!(audio_data_parameters_s, Pair(audio_data, new_paramters))
     end
-    
+
     signal_connect(builder["open.button"], "file-set") do widget
         val = Gtk.GAccessor.filename(Gtk.GtkFileChooser(widget))
         if val != C_NULL
@@ -88,10 +96,10 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
     signal_connect(builder["export.funscript.button"], "clicked") do _
         actions = value(actions_s)
         if !isempty(actions)
-            file_name = save_dialog("Save Funscript as...", builder["appwindow"],["*.funscript"])
+            file_name = save_dialog("Save Funscript as...", builder["appwindow"], ["*.funscript"])
 
             if !isempty(file_name)
-                save_funscript(file_name, value(audio_data_s), value(actions_s))
+                save_funscript(file_name, value(audio_data_parameters_s), value(actions_s))
             end
         end
     end
@@ -99,7 +107,7 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
     signal_connect(builder["export.heatmap.button"], "clicked") do _
         actions = value(actions_s)
         if !isempty(actions)
-            file_name = save_dialog("Save Heatmap as...", builder["appwindow"],["*.png"])
+            file_name = save_dialog("Save Heatmap as...", builder["appwindow"], ["*.png"])
 
             if !isempty(file_name)
                 CairoMakie.save(file_name, value(heatmap_s))
@@ -117,24 +125,12 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         nothing
     end
 
-    on(audio_data_s) do data
-        parameters = value(parameters_s)
-        if (data.duration != 0)
-            h = Gtk.height(audio_canvas)
-            w = Gtk.width(audio_canvas)
-            figure = draw_audio(data, parameters, w, h)
-            drawonto!(audio_canvas, figure)
-            show(audio_canvas)
-            push!(actions_s, create_actions(data, value(parameters)))
-        end
-        nothing
-    end
-
-    on(parameters_s) do parms
-        show(audio_canvas)
-        audio_data = value(audio_data_s)
+    on(audio_data_parameters_s) do adp
+        audio_data::AudioData = adp.first
+        parameters::Parameters = adp.second
+        redraw_audio_data(audio_canvas, audio_data, parameters)
         if (audio_data.duration != 0)
-            push!(actions_s, create_actions(audio_data, parms))
+            push!(actions_s, create_actions(audio_data, parameters))
         end
         nothing
     end
@@ -143,7 +139,7 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         if (!isempty(acts))
             h = Gtk.height(funscript_canvas)
             w = Gtk.width(funscript_canvas)
-            figure = draw_funscript(acts, value(audio_data_s), w, h)
+            figure = draw_funscript(acts, value(audio_data_parameters_s).first, w, h)
             drawonto!(funscript_canvas, figure)
             show(funscript_canvas)
             push!(heatmap_s, figure)
