@@ -40,7 +40,7 @@ function draw_audio(audio_data::AudioData, parameters::Parameters, w, h)
         parameters.end_time
     end
 
-    vlines!(axis, [parameters.start_time, end_time], color=:sienna1, linewidth=1, label="crop")
+    vlines!(axis, [parameters.start_time, end_time], color=:green, linewidth=1, label="crop")
 
     axislegend(axis)
 
