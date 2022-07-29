@@ -1,8 +1,6 @@
 module FunscriptDancer
 
-using Reactive
-using JSON
-using Gtk
+using Reactive, JSON, Gtk
 
 struct Parameters
     start_time

@@ -60,27 +60,6 @@ end
     ]
 end
 
-@testset "Actions.jl - calculate intensity" begin
-    actions = [
-        Action(50, 0),
-        Action(33, 50),
-        Action(0, 75),
-        Action(33, 100),
-        Action(0, 113),
-        Action(93, 150),
-        Action(0, 196),
-        Action(7, 200),
-        Action(0, 203),
-        Action(100, 243),
-        Action(83, 250),
-        Action(100, 275),
-        Action(83, 300),
-        Action(100, 439),
-        Action(99, 450),
-        Action(100, 453),
-        Action(35, 600)
-    ]
-    @test calculate_speed(actions) == [
-        0.0, 340.0, 1320.0, 1320.0, 2538.461538461538, 2513.5135135135138, 2021.7391304347827, 1750.0, 2333.3333333333335, 2500.0, 2428.5714285714284, 680.0, 680.0, 122.3021582733813, 90.9090909090909, 333.3333333333333, 442.17687074829934
-    ]
+@testset "Plotting.jl" begin
+    @test calculate_speed(Action(0,0),Action(100,200)) == 500
 end

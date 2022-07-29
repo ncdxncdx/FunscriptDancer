@@ -1,7 +1,4 @@
-using FFMPEG
-using CSV
-using Reactive
-using DataFrames
+using FFMPEG, CSV, Reactive, DataFrames
 
 struct AudioDatum{T<:Real}
     values::Vector{T}

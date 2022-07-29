@@ -1,5 +1,4 @@
-using CairoMakie
-using Gtk
+using CairoMakie, Gtk
 
 function drawonto!(canvas, figure)
     @guarded draw(canvas) do _
@@ -42,36 +41,29 @@ function draw_audio(audio_data::AudioData, w, h)
     figure
 end
 
-function calculate_speed(actions::Actions)
-    function calculate_speed_inner(first::Action, second::Action)
-        if (first.at == second.at)
-            0
-        else
-            1000 * (abs(second.pos - first.pos) / abs(second.at - first.at))
-        end
+function calculate_speed(first::Action, second::Action)
+    if (first.at == second.at)
+        0
+    else
+        1000 * (abs(second.pos - first.pos) / abs(second.at - first.at))
     end
-
-    speeds = Vector{Float64}()
-    previous = Action(0, 0)
-    for action in actions
-        push!(speeds, calculate_speed_inner(previous, action))
-        previous = action
-    end
-    speeds
 end
 
 function draw_funscript(actions::Actions, audio_data::AudioData, w, h)
     (axis, figure) = create_axis(audio_data, w, h)
     ylims!(axis, 0, 100)
 
-    colors = calculate_speed(actions)
-
-    lines!(
-        axis,
-        map(a -> a.at, actions),
-        map(a -> a.pos, actions),
-        colormap=:neon, color=colors, colorrange=(0, 600)
-    )
+    previous = Action(0, 0)
+    for action in actions
+        color = calculate_speed(previous, action)
+        lines!(
+            axis,
+            [previous.at,action.at],
+            [previous.pos,action.pos],
+            colormap=:neon, color=[color,color], colorrange=(0, 600)
+        )
+        previous = action
+    end
 
     figure
 end
