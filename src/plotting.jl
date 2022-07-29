@@ -25,7 +25,7 @@ function create_axis(audio_data::AudioData, w, h)
 end
 
 function draw_audio(audio_data::AudioData, w, h)
-    (axis, figure) = create_axis(audio_data, w, h)
+    axis, figure = create_axis(audio_data, w, h)
     ylims!(
         axis,
         minimum([audio_data.pitch.minimum, audio_data.energy.maximum]),
@@ -50,7 +50,7 @@ function calculate_speed(first::Action, second::Action)
 end
 
 function draw_funscript(actions::Actions, audio_data::AudioData, w, h)
-    (axis, figure) = create_axis(audio_data, w, h)
+    axis, figure = create_axis(audio_data, w, h)
     ylims!(axis, 0, 100)
 
     previous = Action(0, 0)
@@ -60,7 +60,7 @@ function draw_funscript(actions::Actions, audio_data::AudioData, w, h)
             axis,
             [previous.at,action.at],
             [previous.pos,action.pos],
-            colormap=:neon, color=[color,color], colorrange=(0, 600)
+            colormap=:turbo, color=[color,color], colorrange=(0, 600)
         )
         previous = action
     end

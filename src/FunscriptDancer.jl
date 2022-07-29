@@ -1,6 +1,6 @@
 module FunscriptDancer
 
-using Reactive, JSON, Gtk
+using Reactive, JSON, Gtk, CairoMakie
 
 struct Parameters
     start_time
@@ -17,13 +17,15 @@ struct Signals
     parameters::Signal{Parameters}
     actions::Signal{Actions}
     load_status::Signal{LoadStatus}
+    heatmap::Signal{Figure}
 end
 function create_signals()
     audio_data = Signal(AudioData(Vector{Float64}(), Vector{Float64}(), Vector{Int64}(), "", 0))
     parameters = Signal(Parameters(0, 0, 1))
     actions = Signal(Vector{Action}())
     load_status = Signal(LoadStatus("Ready", 0))
-    Signals(audio_data, parameters, actions, load_status)
+    heatmap = Signal(Figure())
+    Signals(audio_data, parameters, actions, load_status, heatmap)
 end
 
 function open_file(filename::AbstractString, signals::Signals)
@@ -37,20 +39,13 @@ function open_file(filename::AbstractString, signals::Signals)
     end
 end
 
-function connect_from_ui_to_app(builder::GtkBuilder, signals::Signals)
-    signal_connect(builder["open.button"], "file-set") do widget
-        val = Gtk.GAccessor.filename(Gtk.GtkFileChooser(widget))
-        if val != C_NULL
-            open_file(Gtk.bytestring(val), signals)
-        end
-    end
-end
-
-function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
+function connect_ui(builder::GtkBuilder, signals::Signals)
     parameters_s = signals.parameters
     actions_s = signals.actions
     audio_data_s = signals.audio_data
     load_status_s = signals.load_status
+    heatmap_s = signals.heatmap
+
     function on(func, signal)
         preserve(map(func, signal))
     end
@@ -61,8 +56,39 @@ function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
         set_gtk_property!(box, :expand, canvas, true)
         canvas
     end
+    
     audio_canvas = make_canvas("audio.view")
     funscript_canvas = make_canvas("funscript.view")
+    
+    signal_connect(builder["open.button"], "file-set") do widget
+        val = Gtk.GAccessor.filename(Gtk.GtkFileChooser(widget))
+        if val != C_NULL
+            open_file(Gtk.bytestring(val), signals)
+        end
+    end
+
+    signal_connect(builder["export.funscript.button"], "clicked") do _
+        actions = value(actions_s)
+        if !isempty(actions)
+            file_name = save_dialog("Save Funscript as...", builder["appwindow"],["*.funscript"])
+
+            if !isempty(file_name)
+                save_funscript(file_name, value(audio_data_s), value(actions_s))
+            end
+        end
+    end
+
+    signal_connect(builder["export.heatmap.button"], "clicked") do _
+        actions = value(actions_s)
+        if !isempty(actions)
+            file_name = save_dialog("Save Heatmap as...", builder["appwindow"],["*.png"])
+
+            if !isempty(file_name)
+                CairoMakie.save(file_name, value(heatmap_s))
+            end
+        end
+    end
+
     on(load_status_s) do status
         status_text = builder["open.status"]
         progress_bar = builder["open.progress"]
@@ -95,12 +121,13 @@ function connect_from_app_to_ui(builder::GtkBuilder, signals::Signals)
     end
 
     on(actions_s) do acts
-        if (length(acts) != 0)
+        if (!isempty(acts))
             h = Gtk.height(funscript_canvas)
             w = Gtk.width(funscript_canvas)
             figure = draw_funscript(acts, value(audio_data_s), w, h)
             drawonto!(funscript_canvas, figure)
             show(funscript_canvas)
+            push!(heatmap_s, figure)
         end
         nothing
     end
@@ -140,8 +167,7 @@ function julia_main()::Cint
     show(app_window)
     @async Gtk.gtk_main()
     signals = create_signals()
-    connect_from_app_to_ui(builder, signals)
-    connect_from_ui_to_app(builder, signals)
+    connect_ui(builder, signals)
     Gtk.waitforsignal(app_window, :destroy)
     return 0
 end
