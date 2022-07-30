@@ -33,32 +33,33 @@ function is_in_time_range(at, start_time, end_time)
 end
 
 function create_actions(data::AudioData, parameters::Parameters)::Actions
-    normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
-    actions = Actions()
-    push!(actions, Action(50, parameters.start_time))
     cropped_data = subset(data.frame, :at => a -> is_in_time_range.(a, parameters.start_time, parameters.end_time))
-    pitch_col = cropped_data[!, :pitch]
-    energy_col = cropped_data[!, :energy]
-    at_col = cropped_data[!, :at]
+    offsets = calculate_offsets(cropped_data[!, :pitch], create_normalised_pitch_to_offset(parameters.pitch_range))
+    insertcols!(cropped_data, :offset => offsets, copycols = false)
+
+    actions = [Action(50, parameters.start_time)]
     function action(pos, at, last_pos, last_at)
         append!(actions, peak(pos, at, last_pos, last_at))
     end
-    offsets = calculate_offsets(pitch_col, create_normalised_pitch_to_offset(parameters.pitch_range))
-    normalise = create_normalise_function(energy_col)
+
+    normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
+    normalise = create_normalise_function(cropped_data[!, :energy])
     last_at = parameters.start_time
     last_pos = 50
-    for (offset, energy, at) in zip(offsets, energy_col, at_col)
+    
+    for (offset, energy, at) in eachrow(cropped_data[:,[:offset,:energy,:at]])
         normalised_energy = normalise(energy)
+        unoffset_pos = normalised_energy_to_pos(normalised_energy)
 
         # up
-        int_at2 = round(Int, ((at + last_at) / 2))
-        pos = (normalised_energy_to_pos(normalised_energy)) + offset
-        action(pos, int_at2, last_pos, last_at)
-        last_at = int_at2
+        intermediate_at = round(Int, (at + last_at) / 2)
+        pos = unoffset_pos + offset
+        action(pos, intermediate_at, last_pos, last_at)
+        last_at = intermediate_at
         last_pos = pos
 
         # down
-        pos = (normalised_energy_to_pos(normalised_energy) * -1) + offset
+        pos = (unoffset_pos * -1) + offset
         action(pos, at, last_pos, last_at)
         last_at = at
         last_pos = pos
