@@ -35,21 +35,21 @@ end
 function create_actions(data::AudioData, parameters::Parameters)::Actions
     cropped_data = subset(data.frame, :at => a -> is_in_time_range.(a, parameters.start_time, parameters.end_time))
     offsets = calculate_offsets(cropped_data[!, :pitch], create_normalised_pitch_to_offset(parameters.pitch_range))
-    insertcols!(cropped_data, :offset => offsets, copycols = false)
+    insertcols!(cropped_data, :offset => offsets, copycols=false)
 
     actions = [Action(50, parameters.start_time)]
     function action(pos, at, last_pos, last_at)
         append!(actions, peak(pos, at, last_pos, last_at))
     end
 
-    normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
     normalise = create_normalise_function(cropped_data[!, :energy])
+    normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
     last_at = parameters.start_time
     last_pos = 50
-    
-    for (offset, energy, at) in eachrow(cropped_data[:,[:offset,:energy,:at]])
-        normalised_energy = normalise(energy)
-        unoffset_pos = normalised_energy_to_pos(normalised_energy)
+
+    # This zip(...) is significantly more performant than eachrow(cropped_data[:,[:offset, :energy, :at]])
+    for (offset, energy, at) in zip(cropped_data[:, :offset], cropped_data[:, :energy], cropped_data[:, :at])
+        unoffset_pos = normalised_energy_to_pos(normalise(energy))
 
         # up
         intermediate_at = round(Int, (at + last_at) / 2)

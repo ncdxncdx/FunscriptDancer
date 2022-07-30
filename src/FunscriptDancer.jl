@@ -11,7 +11,7 @@ end
 
 include("AudioAnalysis.jl")
 include("Actions.jl")
-include("plotting.jl")
+include("Plotting.jl")
 
 struct Signals
     audio_data_parameters::Signal{Pair{AudioData,Parameters}}
