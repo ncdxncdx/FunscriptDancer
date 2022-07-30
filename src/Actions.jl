@@ -38,7 +38,7 @@ function create_actions(data::AudioData, parameters::Parameters)::Actions
     normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
 
     create_actions_barrier(
-        zip(cropped_data[:, :offset], cropped_data[:, :energy], cropped_data[:, :at]),
+        Tables.namedtupleiterator(cropped_data[:, [:offset, :energy, :at]]),
         energy -> normalised_energy_to_pos(normalise(energy)),
         parameters
     )
