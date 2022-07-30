@@ -33,23 +33,34 @@ function is_in_time_range(at, start_time, end_time)
 end
 
 function create_actions(data::AudioData, parameters::Parameters)::Actions
+    cropped_data = create_cropped_data_frame(data, parameters)
+    normalise = create_normalise_function(cropped_data[!, :energy])
+    normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
+
+    create_actions_barrier(
+        zip(cropped_data[:, :offset], cropped_data[:, :energy], cropped_data[:, :at]),
+        energy -> normalised_energy_to_pos(normalise(energy)),
+        parameters
+    )
+end
+
+function create_cropped_data_frame(data::AudioData, parameters::Parameters)::DataFrame
     cropped_data = subset(data.frame, :at => a -> is_in_time_range.(a, parameters.start_time, parameters.end_time))
     offsets = calculate_offsets(cropped_data[!, :pitch], create_normalised_pitch_to_offset(parameters.pitch_range))
     insertcols!(cropped_data, :offset => offsets, copycols=false)
+end
 
+function create_actions_barrier(iterator, energy_to_pos, parameters)::Actions
     actions = [Action(50, parameters.start_time)]
     function action(pos, at, last_pos, last_at)
-        append!(actions, peak(pos, at, last_pos, last_at))
+        append!(actions, create_peak(pos, at, last_pos, last_at))
     end
 
-    normalise = create_normalise_function(cropped_data[!, :energy])
-    normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
     last_at = parameters.start_time
     last_pos = 50
 
-    # This zip(...) is significantly more performant than eachrow(cropped_data[:,[:offset, :energy, :at]])
-    for (offset, energy, at) in zip(cropped_data[:, :offset], cropped_data[:, :energy], cropped_data[:, :at])
-        unoffset_pos = normalised_energy_to_pos(normalise(energy))
+    for (offset, energy, at) in iterator
+        unoffset_pos = energy_to_pos(energy)
 
         # up
         intermediate_at = round(Int, (at + last_at) / 2)
@@ -67,7 +78,7 @@ function create_actions(data::AudioData, parameters::Parameters)::Actions
     actions
 end
 
-function peak(pos, at, last_pos, last_at)::Actions
+function create_peak(pos, at, last_pos, last_at)::Actions
     actions = Actions()
     function action(pos, at)
         push!(actions, Action(round(Int, pos), round(Int, at)))
