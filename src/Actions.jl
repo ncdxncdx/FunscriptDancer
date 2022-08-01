@@ -32,33 +32,33 @@ function is_in_time_range(at, start_time, end_time)
     at >= start_time && (end_time == 0 || at <= end_time)
 end
 
-function create_actions(data::AudioData, parameters::Parameters)::Actions
-    cropped_data = create_cropped_data_frame(data, parameters)
+function create_actions(data::AudioData, time_parameters::TimeParameters, transform_parameters::TransformParameters)::Actions
+    cropped_data = create_cropped_data_frame(data, time_parameters, transform_parameters)
     normalise = create_normalise_function(cropped_data[!, :energy])
-    normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
+    normalised_energy_to_pos = create_default_normalised_energy_to_pos(transform_parameters.energy_multiplier)
 
     actions = create_actions_barrier(
         Tables.namedtupleiterator(cropped_data[:, [:offset, :energy, :at]]),
         energy -> normalised_energy_to_pos(normalise(energy)),
-        parameters
+        time_parameters
     )
 
     unique!(act -> act.at, actions)
 end
 
-function create_cropped_data_frame(data::AudioData, parameters::Parameters)::DataFrame
-    cropped_data = subset(data.frame, :at => a -> is_in_time_range.(a, parameters.start_time, parameters.end_time))
-    offsets = calculate_offsets(cropped_data[!, :pitch], create_normalised_pitch_to_offset(parameters.pitch_range))
+function create_cropped_data_frame(data::AudioData, time_parameters::TimeParameters, transform_parameters::TransformParameters)::DataFrame
+    cropped_data = subset(data.frame, :at => a -> is_in_time_range.(a, time_parameters.start_time, time_parameters.end_time))
+    offsets = calculate_offsets(cropped_data[!, :pitch], create_normalised_pitch_to_offset(transform_parameters.pitch_range))
     insertcols!(cropped_data, :offset => offsets, copycols=false)
 end
 
-function create_actions_barrier(iterator, energy_to_pos, parameters)::Actions
-    actions = [Action(parameters.start_time, 50)]
+function create_actions_barrier(iterator, energy_to_pos, time_parameters)::Actions
+    actions = [Action(time_parameters.start_time, 50)]
     function action(pos, at, last_pos, last_at)
         append!(actions, create_peak(pos, at, last_pos, last_at))
     end
 
-    last_at = parameters.start_time
+    last_at = time_parameters.start_time
     last_pos = 50
 
     for (offset, energy, at) in iterator

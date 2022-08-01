@@ -24,7 +24,7 @@ function create_axis(audio_data::AudioData, w, h)
     (axis, figure)
 end
 
-function draw_audio(audio_data::AudioData, parameters::Parameters, w, h)
+function draw_audio(audio_data::AudioData, parameters::TimeParameters, w, h)
     pitch = audio_data.frame[!, :pitch]
     energy = audio_data.frame[!, :energy]
     at = audio_data.frame[!, :at]
