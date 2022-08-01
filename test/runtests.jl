@@ -18,9 +18,9 @@ end
     @test int_at(110, 20, 90, 10, 100) == 15
     @test int_at(120, 40, 90, 10, 100) == 20
     @test int_at(-20, 40, 10, 10, 0) == 20
-    @test create_peak(20, 50, 90, 40) == [Action(20, 50)]
-    @test create_peak(110, 50, 90, 40) == [Action(100, 45), Action(90, 50)]
-    @test create_peak(140, 50, 110, 40) == [Action(100, 42), Action(100, 42), Action(60, 50)]
+    @test create_peak(20, 50, 90, 40) == [Action(50, 20)]
+    @test create_peak(110, 50, 90, 40) == [Action(45, 100), Action(50, 90)]
+    @test create_peak(140, 50, 110, 40) == [Action(42,100), Action(42,100), Action(50,60)]
     @test is_in_time_range(0, 0, 0) == true
     @test is_in_time_range(100, 0, 0) == true
     @test is_in_time_range(0, 1000, 0) == false
@@ -39,30 +39,30 @@ end
         ),
         Parameters(0, 0, 1, 100)
     ) == [
-        Action(50, 0),
-        Action(33, 50),
-        Action(0, 75),
-        Action(33, 100),
-        Action(0, 115),
-        Action(75, 150),
-        Action(0, 188),
-        Action(25, 200),
-        Action(0, 209),
-        Action(100, 244),
-        Action(83, 250),
-        Action(100, 275),
-        Action(83, 300),
-        Action(83, 450),
-        Action(17, 600),
-        Action(75, 650),
-        Action(75, 700)
+        Action(0, 50),
+        Action(50, 33),
+        Action(75, 0),
+        Action(100, 33),
+        Action(115, 0),
+        Action(150, 75),
+        Action(188, 0),
+        Action(200, 25),
+        Action(209, 0),
+        Action(244, 100),
+        Action(250, 83),
+        Action(275, 100),
+        Action(300, 83),
+        Action(450, 83),
+        Action(600, 17),
+        Action(650, 75),
+        Action(700, 75)
     ]
 
 end
 
 @testset "Plotting.jl" begin
-    @test calculate_speed(Action(0, 0), Action(200, 100)) == 500
-    @test calculate_segments([Action(50,0),Action(100,100), Action(50,150), Action(75,200)]) ==
+    @test calculate_speed(Action(0, 0), Action(100, 200)) == 500
+    @test calculate_segments([Action(0,50),Action(100,100), Action(150,50), Action(200,75)]) ==
     (
         [(Point2f(0,50),Point2f(100,100)),(Point2f(100,100),Point2f(150,50)),(Point2f(150,50),Point2f(200,75))],
         [500,1000,500]

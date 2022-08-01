@@ -1,6 +1,6 @@
 struct Action
-    pos::Int
     at::Int
+    pos::Int
 end
 const Actions = Vector{Action}
 
@@ -53,7 +53,7 @@ function create_cropped_data_frame(data::AudioData, parameters::Parameters)::Dat
 end
 
 function create_actions_barrier(iterator, energy_to_pos, parameters)::Actions
-    actions = [Action(50, parameters.start_time)]
+    actions = [Action(parameters.start_time, 50)]
     function action(pos, at, last_pos, last_at)
         append!(actions, create_peak(pos, at, last_pos, last_at))
     end
@@ -83,7 +83,7 @@ end
 function create_peak(pos, at, last_pos, last_at)::Actions
     actions = Actions()
     function action(pos, at)
-        push!(actions, Action(round(Int, pos), round(Int, at)))
+        push!(actions, Action(round(Int, at), round(Int, pos)))
     end
     if (last_pos < 0)
         tmp_at = int_at(pos, at, last_pos, last_at, 0)
