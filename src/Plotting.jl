@@ -48,29 +48,34 @@ function draw_audio(audio_data::AudioData, parameters::Parameters, w, h)
 end
 
 function calculate_speed(first::Action, second::Action)
-    if (first.at == second.at)
-        0
-    else
-        1000 * (abs(second.pos - first.pos) / abs(second.at - first.at))
-    end
+    calculate_speed(Point2f(first.pos, first.at), Point2f(second.pos, second.at))
+end
+
+function calculate_speed(first::Point2f, second::Point2f)
+    1000 * (abs(second[2] - first[2]) / abs(second[1] - first[1]))
 end
 
 function draw_funscript(actions::Actions, audio_data::AudioData, w, h)
     axis, figure = create_axis(audio_data, w, h)
     ylims!(axis, 0, 100)
 
-    previous = Action(0, 0)
-    for action in actions
-        color = calculate_speed(previous, action)
-        lines!(
-            axis,
-            [previous.at, action.at],
-            [previous.pos, action.pos],
-            colormap=:turbo, color=[color, color], colorrange=(0, 600)
-        )
-        previous = action
-    end
+    segments, speeds = calculate_segments(actions)
 
+    linesegments!(
+        axis,
+        segments,
+        colormap=:turbo, colorrange=(0, 600), color=speeds
+    )
     figure
 end
 
+function calculate_segments(actions::Actions)
+    segments = Vector{Tuple{Point2f,Point2f}}()
+    for i in 1:length(actions)-1
+        push!(segments, (Point2f(actions[i].at, actions[i].pos), Point2f(actions[i+1].at, actions[i+1].pos)))
+    end
+    speeds = map(segments) do tuple
+        calculate_speed(tuple[1], tuple[2])
+    end
+    (segments, speeds)
+end

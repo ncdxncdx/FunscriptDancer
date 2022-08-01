@@ -37,11 +37,13 @@ function create_actions(data::AudioData, parameters::Parameters)::Actions
     normalise = create_normalise_function(cropped_data[!, :energy])
     normalised_energy_to_pos = create_default_normalised_energy_to_pos(parameters.energy_multiplier)
 
-    create_actions_barrier(
+    actions = create_actions_barrier(
         Tables.namedtupleiterator(cropped_data[:, [:offset, :energy, :at]]),
         energy -> normalised_energy_to_pos(normalise(energy)),
         parameters
     )
+
+    unique!(act -> act.at, actions)
 end
 
 function create_cropped_data_frame(data::AudioData, parameters::Parameters)::DataFrame
@@ -102,7 +104,6 @@ function create_peak(pos, at, last_pos, last_at)::Actions
     else
         action(pos, at)
     end
-    actions
 end
 
 function int_at(pos, at, last_pos, last_at, limit)

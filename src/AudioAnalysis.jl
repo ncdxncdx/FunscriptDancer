@@ -69,21 +69,24 @@ function load_audio_data(video_file::String, load_status::Signal{LoadStatus})::A
     energy = CSV.read(energy_file, DataFrame, header=headers, select=[:value, :start_time, :duration])
     pitch = CSV.read(pitch_file, DataFrame, header=headers, select=[:value, :start_time, :duration])
 
-    joined = outerjoin(energy, pitch, on=[:start_time, :duration], renamecols=(:_energy => :_pitch))
+    joined = outerjoin(energy, pitch, on=[:start_time, :duration], renamecols=(:_energy => :_pitch), validate=(true, true))
     sort!(joined, :start_time)
 
     end_time::Vector{Int64} = map(joined[!, :start_time], joined[!, :duration]) do time, duration
         round(Int, (time + duration) * 1000)
     end
-    
-    finalDataFrame = DataFrame(
-        at=end_time,
-        pitch=map(log10,coalesce.(joined[!, :value_pitch], 1.0)),
-        energy=coalesce.(joined[!, :value_energy], 0.0)
+
+    finalDataFrame = DataFrames.unique!(
+        DataFrame(
+            at=end_time,
+            pitch=map(log10, coalesce.(joined[!, :value_pitch], 1.0)),
+            energy=coalesce.(joined[!, :value_energy], 0.0)
+        ),
+        :at
     )
-    
+
     update_load_status!("Loaded audio analysis", 6)
-    
+
     return AudioData(
         finalDataFrame,
         name,

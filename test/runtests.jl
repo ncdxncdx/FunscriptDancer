@@ -1,6 +1,6 @@
-using FunscriptDancer, Test, DataFrames
+using FunscriptDancer, Test, DataFrames, CairoMakie
 import FunscriptDancer: AudioData, Actions, Action, Parameters
-import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, create_peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed, x_to_millis, create_normalised_pitch_to_offset
+import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, create_peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed, x_to_millis, create_normalised_pitch_to_offset, calculate_segments
 
 @testset "FunscriptDancer.jl" begin
     @test x_to_millis(16, 10000, 1010) == 0
@@ -61,5 +61,10 @@ end
 end
 
 @testset "Plotting.jl" begin
-    @test calculate_speed(Action(0, 0), Action(100, 200)) == 500
+    @test calculate_speed(Action(0, 0), Action(200, 100)) == 500
+    @test calculate_segments([Action(50,0),Action(100,100), Action(50,150), Action(75,200)]) ==
+    (
+        [(Point2f(0,50),Point2f(100,100)),(Point2f(100,100),Point2f(150,50)),(Point2f(150,50),Point2f(200,75))],
+        [500,1000,500]
+    )
 end
