@@ -9,9 +9,15 @@ function drawonto!(canvas, figure)
     end
 end
 
-function create_axis(audio_data::AudioData, w, h)
+function draw_blank(w, h)
+    axis, figure = create_axis(180_000, w, h)
+    text!(axis, w/2, h/2, text="Awaiting data"#= , align=:center, color=:yellow, glowwidth=0.5, glowcolor=:red =#)
+    figure
+end
+
+function create_axis(duration, w, h)
     figure = Figure(resolution=(w, h), backgroundcolor=RGBf(0.937, 0.941, 0.945))
-    num_ticks = round(Int, audio_data.duration / 1000 / 60 * 4)
+    num_ticks = round(Int, duration / 1000 / 60 * 4)
     axis = Axis(
         figure[1, 1],
         xticks=MultiplesTicks(num_ticks, 1000, ""),
@@ -20,7 +26,7 @@ function create_axis(audio_data::AudioData, w, h)
         yticksvisible=false,
         backgroundcolor=:black
     )
-    xlims!(axis, 0, audio_data.duration)
+    xlims!(axis, 0, duration)
     (axis, figure)
 end
 
@@ -28,7 +34,7 @@ function draw_audio(audio_data::AudioData, parameters::TimeParameters, w, h)
     pitch = audio_data.frame[!, :pitch]
     energy = audio_data.frame[!, :energy]
     at = audio_data.frame[!, :at]
-    axis, figure = create_axis(audio_data, w, h)
+    axis, figure = create_axis(audio_data.duration, w, h)
 
     stairs!(axis, at, energy, label="energy")
 
@@ -56,7 +62,7 @@ function calculate_speed(first::Point2f, second::Point2f)
 end
 
 function draw_funscript(actions::Actions, audio_data::AudioData, w, h)
-    axis, figure = create_axis(audio_data, w, h)
+    axis, figure = create_axis(audio_data.duration, w, h)
     ylims!(axis, 0, 100)
 
     segments, speeds = calculate_segments(actions)

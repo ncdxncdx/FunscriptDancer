@@ -5,7 +5,7 @@ struct AudioData
     name::String
     duration::Int64
 end
-Base.:(==)(a::AudioData, b::AudioData) = a.pitch == b.pitch && a.energy == b.energy && a.at == b.at && a.name == b.name && a.duration == b.duration
+Base.:(==)(a::AudioData, b::AudioData) = a.frame == b.frame && a.name == b.name && a.duration == b.duration
 
 struct LoadStatus
     msg::String
