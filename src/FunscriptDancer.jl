@@ -55,6 +55,19 @@ function redraw_audio_data(audio_canvas::GtkCanvas, data::AudioData, parameters:
     show(audio_canvas)
 end
 
+function redraw_funscript(funscript_canvas::GtkCanvas, acts::Actions, audio_data::AudioData)
+    h = Gtk.height(funscript_canvas)
+    w = Gtk.width(funscript_canvas)
+    figure = if (!isempty(acts))
+        draw_funscript(acts, audio_data, w, h)
+    else
+        draw_blank(w, h)
+    end
+    drawonto!(funscript_canvas, figure)
+    show(funscript_canvas)
+    figure
+end
+
 # It doesn't seem to be possible to get a plot width
 # so assume a margin and use that to map position on widget to position on plot
 function x_to_millis(x, duration, width)::Int
@@ -97,6 +110,8 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         val = Gtk.GAccessor.filename(Gtk.GtkFileChooser(widget))
         if val != C_NULL
             try
+                redraw_audio_data(audio_canvas, empty_audio_data, default_time_parameters)
+                redraw_funscript(funscript_canvas, empty_actions, empty_audio_data)
                 push!(signals.audio_data, AudioDataTimeParameters(load_audio_data(Gtk.bytestring(val), signals.load_status), default_time_parameters))
             catch e
                 push!(signals.load_status, LoadStatus("Error: $e", 0))
@@ -175,15 +190,7 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
     end
 
     on(signals.actions) do acts
-        h = Gtk.height(funscript_canvas)
-        w = Gtk.width(funscript_canvas)
-        figure = if (!isempty(acts))
-            draw_funscript(acts, value(signals.audio_data).audio_data, w, h)
-        else
-            draw_blank(w, h)
-        end
-        drawonto!(funscript_canvas, figure)
-        show(funscript_canvas)
+        figure = redraw_funscript(funscript_canvas, acts, value(signals.audio_data).audio_data)
         push!(signals.heatmap, figure)
         nothing
     end

@@ -11,7 +11,7 @@ end
 
 function draw_blank(w, h)
     axis, figure = create_axis(180_000, w, h)
-    text!(axis, w/2, h/2, text="Awaiting data"#= , align=:center, color=:yellow, glowwidth=0.5, glowcolor=:red =#)
+    text!(axis, 90_000, 5, text="Awaiting data", align=(:center, :top), textsize = 20, color=:white, strokewidth=0.5, strokecolor=:yellow, glowwidth=1.5, glowcolor=:red)
     figure
 end
 
