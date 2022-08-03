@@ -11,7 +11,7 @@ end
 
 function draw_blank(w, h)
     axis, figure = create_axis(180_000, w, h)
-    text!(axis, 90_000, 5, text="Awaiting data", align=(:center, :top), textsize = 20, color=:white, strokewidth=0.5, strokecolor=:yellow, glowwidth=1.5, glowcolor=:red)
+    text!(axis, 90_000, 5, text="Awaiting data", align=(:center, :top), textsize=20, color=:white, strokewidth=0.5, strokecolor=:yellow, glowwidth=1.5, glowcolor=:red)
     figure
 end
 
@@ -36,9 +36,9 @@ function draw_audio(audio_data::AudioData, parameters::TimeParameters, w, h)
     at = audio_data.frame[!, :at]
     axis, figure = create_axis(audio_data.duration, w, h)
 
-    stairs!(axis, at, energy, label="energy")
+    stairs!(axis, at, energy, label="energy", step=:pre)
 
-    stairs!(axis, at, pitch, label="log pitch")
+    stairs!(axis, at, pitch, label="log pitch", step=:pre)
 
     end_time = if parameters.end_time == 0
         audio_data.duration

@@ -43,7 +43,7 @@
     <property name="title" translatable="yes">FunscriptDancer</property>
     <property name="show-menubar">False</property>
     <child>
-      <!-- n-columns=1 n-rows=4 -->
+      <!-- n-columns=1 n-rows=5 -->
       <object class="GtkGrid">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
@@ -78,7 +78,7 @@
                             <property name="receives-default">True</property>
                             <property name="image">about</property>
                             <property name="relief">none</property>
-                            <property name="uri">http://github.com/ncdx/audioscripter</property>
+                            <property name="uri">http://github.com/ncdx/FunscriptDancer</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -156,6 +156,7 @@
           <object class="GtkFrame">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="vexpand">True</property>
             <property name="label-xalign">0</property>
             <property name="shadow-type">in</property>
             <child>
@@ -206,6 +207,7 @@
           <object class="GtkFrame">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="vexpand">True</property>
             <property name="label-xalign">0</property>
             <property name="shadow-type">in</property>
             <child>
@@ -214,7 +216,7 @@
                 <property name="can-focus">False</property>
                 <property name="left-padding">12</property>
                 <child>
-                  <!-- n-columns=2 n-rows=2 -->
+                  <!-- n-columns=1 n-rows=1 -->
                   <object class="GtkGrid">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -234,139 +236,6 @@
                       <packing>
                         <property name="left-attach">0</property>
                         <property name="top-attach">0</property>
-                        <property name="width">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkFrame">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="vexpand">True</property>
-                        <property name="label-xalign">0</property>
-                        <property name="shadow-type">in</property>
-                        <child>
-                          <object class="GtkAlignment">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="left-padding">12</property>
-                            <child>
-                              <!-- n-columns=2 n-rows=1 -->
-                              <object class="GtkGrid">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <child>
-                                  <object class="GtkBox" id="funscript.pitch.view">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="hexpand">True</property>
-                                    <property name="vexpand">True</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">0</property>
-                                    <property name="top-attach">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkScale">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
-                                    <property name="vexpand">True</property>
-                                    <property name="orientation">vertical</property>
-                                    <property name="adjustment">funscript.pitch.adjustment</property>
-                                    <property name="inverted">True</property>
-                                    <property name="round-digits">1</property>
-                                    <property name="value-pos">right</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">1</property>
-                                    <property name="top-attach">0</property>
-                                  </packing>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child type="label">
-                          <object class="GtkLabel">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">Pitch -&gt; offset</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkFrame">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="vexpand">True</property>
-                        <property name="label-xalign">0</property>
-                        <property name="shadow-type">in</property>
-                        <child>
-                          <object class="GtkAlignment">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="left-padding">12</property>
-                            <child>
-                              <!-- n-columns=2 n-rows=1 -->
-                              <object class="GtkGrid">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <child>
-                                  <object class="GtkBox" id="funscript.energy.view">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="hexpand">True</property>
-                                    <property name="vexpand">True</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">0</property>
-                                    <property name="top-attach">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkScale">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
-                                    <property name="vexpand">True</property>
-                                    <property name="orientation">vertical</property>
-                                    <property name="adjustment">funscript.energy.adjustment</property>
-                                    <property name="inverted">True</property>
-                                    <property name="round-digits">1</property>
-                                    <property name="value-pos">right</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">1</property>
-                                    <property name="top-attach">0</property>
-                                  </packing>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child type="label">
-                          <object class="GtkLabel">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">Energy -&gt; magnitude</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">1</property>
                       </packing>
                     </child>
                   </object>
@@ -377,7 +246,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Funscript preview and settings</property>
+                <property name="label" translatable="yes">Funscript preview</property>
               </object>
             </child>
           </object>
@@ -440,6 +309,151 @@
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Export</property>
               </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <!-- n-columns=2 n-rows=1 -->
+          <object class="GtkGrid">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="label-xalign">0</property>
+                <property name="shadow-type">in</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="left-padding">12</property>
+                    <child>
+                      <!-- n-columns=2 n-rows=1 -->
+                      <object class="GtkGrid">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <object class="GtkBox" id="funscript.energy.view">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkScale">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="vexpand">True</property>
+                            <property name="orientation">vertical</property>
+                            <property name="adjustment">funscript.energy.adjustment</property>
+                            <property name="inverted">True</property>
+                            <property name="round-digits">1</property>
+                            <property name="value-pos">right</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Energy -&gt; magnitude</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="label-xalign">0</property>
+                <property name="shadow-type">in</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="left-padding">12</property>
+                    <child>
+                      <!-- n-columns=2 n-rows=1 -->
+                      <object class="GtkGrid">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <object class="GtkBox" id="funscript.pitch.view">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkScale">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="vexpand">True</property>
+                            <property name="orientation">vertical</property>
+                            <property name="adjustment">funscript.pitch.adjustment</property>
+                            <property name="inverted">True</property>
+                            <property name="round-digits">1</property>
+                            <property name="value-pos">right</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Pitch -&gt; offset</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
             </child>
           </object>
           <packing>

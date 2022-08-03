@@ -15,6 +15,7 @@ end
 include("AudioAnalysis.jl")
 include("Actions.jl")
 include("Plotting.jl")
+include("GtkHelpers.jl")
 
 struct AudioDataTimeParameters
     audio_data::AudioData
@@ -29,7 +30,7 @@ struct Signals
     heatmap::Signal{Figure}
 end
 
-const empty_audio_data = AudioData(DataFrame(), "", 0)
+const empty_audio_data = AudioData(DataFrame(), "", "", 0)
 const empty_actions = Actions()
 const default_time_parameters = TimeParameters(0, 0)
 const default_transform_parameters = TransformParameters(1, 50)
@@ -121,8 +122,11 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
 
     signal_connect(builder["export.funscript.button"], "clicked") do _
         actions = value(signals.actions)
+        audio_data = value(signals.audio_data).audio_data
+        name = audio_data.name
+        dir = audio_data.folder
         if !isempty(actions)
-            file_name = save_dialog("Save Funscript as...", builder["appwindow"], ["*.funscript"])
+            file_name = my_save_dialog("Save Funscript as...", builder["appwindow"], ["*.funscript"], current_name="$name.funscript", current_folder=dir)
 
             if !isempty(file_name)
                 save_funscript(file_name, value(signals.audio_data).audio_data, value(signals.actions))
@@ -132,8 +136,11 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
 
     signal_connect(builder["export.heatmap.button"], "clicked") do _
         actions = value(signals.actions)
+        audio_data = value(signals.audio_data).audio_data
+        name = audio_data.name
+        dir = audio_data.folder
         if !isempty(actions)
-            file_name = save_dialog("Save Heatmap as...", builder["appwindow"], ["*.png"])
+            file_name = my_save_dialog("Save Heatmap as...", builder["appwindow"], ["*.png"], current_name="$name.funscript.png", current_folder=dir)
 
             if !isempty(file_name)
                 CairoMakie.save(file_name, value(signals.heatmap))

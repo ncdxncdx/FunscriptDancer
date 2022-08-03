@@ -3,6 +3,7 @@ using FFMPEG, CSV, Reactive, DataFrames
 struct AudioData
     frame::DataFrame
     name::String
+    folder::String
     duration::Int64
 end
 Base.:(==)(a::AudioData, b::AudioData) = a.frame == b.frame && a.name == b.name && a.duration == b.duration
@@ -18,16 +19,16 @@ function transform_file(path, name, transform)
 end
 
 function base_name(path)
-    (_, filename) = splitdir(path)
-    (base, _) = splitext(filename)
-    base
+    dir, filename = splitdir(path)
+    base, _ = splitext(filename)
+    dir, base
 end
 
 function load_audio_data(video_file::String, load_status::Signal{LoadStatus})::AudioData
     function update_load_status!(msg, progress)
         push!(load_status, LoadStatus(msg, progress / 6))
     end
-    name = base_name(video_file)
+    dir, name = base_name(video_file)
     tmp_path = "tmp"
     audio_file = joinpath(tmp_path, string(name, ".wav"))
     beat_transform = "vamp:vamp-aubio:aubiotempo:beats"
@@ -90,5 +91,6 @@ function load_audio_data(video_file::String, load_status::Signal{LoadStatus})::A
     return AudioData(
         finalDataFrame,
         name,
+        dir,
         total_duration)
 end
