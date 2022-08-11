@@ -61,7 +61,7 @@ end
 end
 
 @testset "Plotting.jl" begin
-    @test calculate_speed(Action(0, 0), Action(100, 200)) == 500
+    @test calculate_speed(Action(0, 0), Action(50, 100)) == 500
     @test calculate_segments([Action(0,50),Action(100,100), Action(150,50), Action(200,75)]) ==
     (
         [(Point2f(0,50),Point2f(100,100)),(Point2f(100,100),Point2f(150,50)),(Point2f(150,50),Point2f(200,75))],

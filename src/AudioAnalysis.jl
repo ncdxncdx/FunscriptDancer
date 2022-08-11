@@ -53,6 +53,18 @@ function load_audio_data(video_file::String, load_status::Signal{LoadStatus})::A
     update_load_status!("Media duration: $total_duration", 1)
 
     if !(isfile(energy_file) && isfile(pitch_file))
+        try
+            run(`sonic-annotator -v`)
+        catch
+            throw("Unable to run sonic-annotator. Is it installed and on the command path?")
+        end
+
+        vamp_plugins = readlines(`sonic-annotator -l`)                    
+        missing_plugins = setdiff(Set([beat_transform, energy_transform, pitch_transform]), vamp_plugins)
+        if !isempty(missing_plugins)
+            throw("sonic-annotator does not have plugins $missing_plugins available")
+        end
+
         ffmpeg_exe("-i", video_file, "-vn", audio_file)
         update_load_status!("Extracted audio", 2)
         run(`sonic-annotator -d "$beat_transform" -w csv --csv-force "$audio_file"`)

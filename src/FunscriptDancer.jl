@@ -110,12 +110,14 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
     signal_connect(builder["open.button"], "file-set") do widget
         val = Gtk.GAccessor.filename(Gtk.GtkFileChooser(widget))
         if val != C_NULL
-            try
-                redraw_audio_data(audio_canvas, empty_audio_data, default_time_parameters)
-                redraw_funscript(funscript_canvas, empty_actions, empty_audio_data)
-                push!(signals.audio_data, AudioDataTimeParameters(load_audio_data(Gtk.bytestring(val), signals.load_status), default_time_parameters))
-            catch e
-                push!(signals.load_status, LoadStatus("Error: $e", 0))
+            @async begin
+                try
+                    redraw_audio_data(audio_canvas, empty_audio_data, default_time_parameters)
+                    redraw_funscript(funscript_canvas, empty_actions, empty_audio_data)
+                    push!(signals.audio_data, AudioDataTimeParameters(load_audio_data(Gtk.bytestring(val), signals.load_status), default_time_parameters))
+                catch e
+                    push!(signals.load_status, LoadStatus("Error: $e", 0))
+                end
             end
         end
     end
@@ -167,7 +169,6 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         progress_bar = builder["open.progress"]
         set_gtk_property!(status_text, :text, status.msg)
         set_gtk_property!(progress_bar, :fraction, status.position)
-        sleep(10) # Yield so the GUI updates, yes this is rubbish
         nothing
     end
 
