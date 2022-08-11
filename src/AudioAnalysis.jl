@@ -57,9 +57,11 @@ function load_audio_data(video_file::String, load_status::Signal{LoadStatus})::A
         update_load_status!("Extracted audio", 2)
         run(`sonic-annotator -d "$beat_transform" -w csv --csv-force "$audio_file"`)
         update_load_status!("Computed beats", 3)
-        run(`sonic-annotator -d "$energy_transform" -S sum --summary-only --segments-from "$beat_file"  -w csv --csv-force "$audio_file"`)
+        energy_task = Threads.@spawn(run(`sonic-annotator -d "$energy_transform" -S sum --summary-only --segments-from "$beat_file"  -w csv --csv-force "$audio_file"`))
+        pitch_task = Threads.@spawn(run(`sonic-annotator -d "$pitch_transform" -S mean --summary-only --segments-from "$beat_file"  -w csv --csv-force "$audio_file"`))
+        wait(energy_task)
         update_load_status!("Computed RMS energy", 4)
-        run(`sonic-annotator -d "$pitch_transform" -S mean --summary-only --segments-from "$beat_file"  -w csv --csv-force "$audio_file"`)
+        wait(pitch_task)
         update_load_status!("Computed pitch", 5)
     end
 
