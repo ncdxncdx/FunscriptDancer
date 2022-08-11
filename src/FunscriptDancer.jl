@@ -2,6 +2,15 @@ module FunscriptDancer
 
 using Reactive, JSON, Gtk, CairoMakie, DataFrames
 
+abstract type Overflow
+end
+
+struct Bounce <: Overflow
+end
+
+struct Crop <: Overflow
+end
+
 struct TimeParameters
     start_time::Int
     end_time::Int
@@ -10,6 +19,7 @@ end
 struct TransformParameters
     energy_multiplier::Real
     pitch_range::Real
+    overflow::Overflow
 end
 
 include("AudioAnalysis.jl")
@@ -33,7 +43,7 @@ end
 const empty_audio_data = AudioData(DataFrame(), "", "", 0)
 const empty_actions = Actions()
 const default_time_parameters = TimeParameters(0, 0)
-const default_transform_parameters = TransformParameters(1, 50)
+const default_transform_parameters = TransformParameters(1, 50, Bounce())
 
 function create_signals()
     audio_data = Signal(AudioDataTimeParameters(empty_audio_data, default_time_parameters))
@@ -153,14 +163,14 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
     signal_connect(builder["funscript.energy.adjustment"], "value-changed") do widget
         val = get_gtk_property(widget, :value, Float64)
         old_parameters = value(signals.transform_parameters)
-        new_parameters = TransformParameters(val, old_parameters.pitch_range)
+        new_parameters = TransformParameters(val, old_parameters.pitch_range, old_parameters.overflow)
         push!(signals.transform_parameters, new_parameters)
     end
 
     signal_connect(builder["funscript.pitch.adjustment"], "value-changed") do widget
         val = get_gtk_property(widget, :value, Float64)
         old_parameters = value(signals.transform_parameters)
-        new_parameters = TransformParameters(old_parameters.energy_multiplier, val)
+        new_parameters = TransformParameters(old_parameters.energy_multiplier, val, old_parameters.overflow)
         push!(signals.transform_parameters, new_parameters)
     end
 

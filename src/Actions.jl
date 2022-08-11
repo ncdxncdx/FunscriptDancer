@@ -40,7 +40,8 @@ function create_actions(data::AudioData, time_parameters::TimeParameters, transf
     actions = create_actions_barrier(
         Tables.namedtupleiterator(cropped_data[:, [:offset, :energy, :at]]),
         energy -> normalised_energy_to_pos(normalise(energy)),
-        time_parameters
+        time_parameters,
+        transform_parameters.overflow
     )
 
     unique!(act -> act.at, actions)
@@ -52,10 +53,10 @@ function create_cropped_data_frame(data::AudioData, time_parameters::TimeParamet
     insertcols!(cropped_data, :offset => offsets, copycols=false)
 end
 
-function create_actions_barrier(iterator, energy_to_pos, time_parameters)::Actions
+function create_actions_barrier(iterator, energy_to_pos, time_parameters, overflow)::Actions
     actions = [Action(time_parameters.start_time, 50)]
     function action(pos, at, last_pos, last_at)
-        append!(actions, create_peak(pos, at, last_pos, last_at))
+        append!(actions, create_peak(overflow, pos, at, last_pos, last_at))
     end
 
     last_at = time_parameters.start_time
@@ -80,7 +81,7 @@ function create_actions_barrier(iterator, energy_to_pos, time_parameters)::Actio
     actions
 end
 
-function create_peak(pos, at, last_pos, last_at)::Actions
+function create_peak(::Bounce, pos, at, last_pos, last_at)::Actions
     actions = Actions()
     function action(pos, at)
         push!(actions, Action(round(Int, at), round(Int, pos)))
@@ -104,6 +105,17 @@ function create_peak(pos, at, last_pos, last_at)::Actions
     else
         action(pos, at)
     end
+end
+
+function create_peak(::Crop, pos, at, last_pos, last_at)::Actions
+    actual_pos = if pos > 100
+        100
+    elseif pos < 0
+        0
+    else
+        pos
+    end
+    [Action(round(Int, at), round(Int, actual_pos))]
 end
 
 function int_at(pos, at, last_pos, last_at, limit)

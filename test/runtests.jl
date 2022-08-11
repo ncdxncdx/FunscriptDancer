@@ -1,5 +1,5 @@
 using FunscriptDancer, Test, DataFrames, CairoMakie
-import FunscriptDancer: AudioData, Actions, Action, Parameters
+import FunscriptDancer: AudioData, Actions, Action, TimeParameters, TransformParameters, Crop, Bounce
 import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, create_peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed, x_to_millis, create_normalised_pitch_to_offset, calculate_segments
 
 @testset "FunscriptDancer.jl" begin
@@ -10,7 +10,7 @@ end
 
 @testset "AudioAnalysis.jl" begin
     @test transform_file("path", "name", "vamp:vamp-aubio:aubiotempo:beats") == "path/name_vamp_vamp-aubio_aubiotempo_beats.csv"
-    @test base_name("foo/bar/baz.mp4") == "baz"
+    @test base_name("foo/bar/baz.mp4") == ("foo/bar", "baz")
 end
 
 @testset "Actions.jl" begin
@@ -18,9 +18,12 @@ end
     @test int_at(110, 20, 90, 10, 100) == 15
     @test int_at(120, 40, 90, 10, 100) == 20
     @test int_at(-20, 40, 10, 10, 0) == 20
-    @test create_peak(20, 50, 90, 40) == [Action(50, 20)]
-    @test create_peak(110, 50, 90, 40) == [Action(45, 100), Action(50, 90)]
-    @test create_peak(140, 50, 110, 40) == [Action(42,100), Action(42,100), Action(50,60)]
+    @test create_peak(Bounce(), 20, 50, 90, 40) == [Action(50, 20)]
+    @test create_peak(Bounce(), 110, 50, 90, 40) == [Action(45, 100), Action(50, 90)]
+    @test create_peak(Bounce(), 140, 50, 110, 40) == [Action(42, 100), Action(42, 100), Action(50, 60)]
+    @test create_peak(Crop(), 20, 50, 90, 40) == [Action(50, 20)]
+    @test create_peak(Crop(), 110, 50, 90, 40) == [Action(50, 100)]
+    @test create_peak(Crop(), -10, 50, 110, 40) == [Action(50, 0)]
     @test is_in_time_range(0, 0, 0) == true
     @test is_in_time_range(100, 0, 0) == true
     @test is_in_time_range(0, 1000, 0) == false
@@ -34,10 +37,12 @@ end
                 energy=[4.0, 5.0, 3.0, 4.0, 2.0],
                 at=[100, 200, 300, 600, 700]
             ),
-            "foobar",
+            "filename",
+            "folder",
             4
         ),
-        Parameters(0, 0, 1, 100)
+        TimeParameters(0, 0),
+        TransformParameters(1, 100, Bounce())
     ) == [
         Action(0, 50),
         Action(50, 33),
@@ -62,9 +67,9 @@ end
 
 @testset "Plotting.jl" begin
     @test calculate_speed(Action(0, 0), Action(50, 100)) == 500
-    @test calculate_segments([Action(0,50),Action(100,100), Action(150,50), Action(200,75)]) ==
-    (
-        [(Point2f(0,50),Point2f(100,100)),(Point2f(100,100),Point2f(150,50)),(Point2f(150,50),Point2f(200,75))],
-        [500,1000,500]
+    @test calculate_segments([Action(0, 50), Action(100, 100), Action(150, 50), Action(200, 75)]) ==
+          (
+        [(Point2f(0, 50), Point2f(100, 100)), (Point2f(100, 100), Point2f(150, 50)), (Point2f(150, 50), Point2f(200, 75))],
+        [500, 1000, 500]
     )
 end
