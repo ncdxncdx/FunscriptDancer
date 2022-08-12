@@ -43,7 +43,7 @@ end
 const empty_audio_data = AudioData(DataFrame(), "", "", 0)
 const empty_actions = Actions()
 const default_time_parameters = TimeParameters(0, 0)
-const default_transform_parameters = TransformParameters(1, 50, Bounce())
+const default_transform_parameters = TransformParameters(1, 50, Crop())
 
 function create_signals()
     audio_data = Signal(AudioDataTimeParameters(empty_audio_data, default_time_parameters))
@@ -172,6 +172,22 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         old_parameters = value(signals.transform_parameters)
         new_parameters = TransformParameters(old_parameters.energy_multiplier, val, old_parameters.overflow)
         push!(signals.transform_parameters, new_parameters)
+    end
+
+    signal_connect(builder["funscript.out_of_range.crop"], "toggled") do widget
+        if get_gtk_property(widget, :active, Bool)
+            old_parameters = value(signals.transform_parameters)
+            new_parameters = TransformParameters(old_parameters.energy_multiplier, old_parameters.pitch_range, Crop())
+            push!(signals.transform_parameters, new_parameters)
+        end
+    end
+
+    signal_connect(builder["funscript.out_of_range.bounce"], "toggled") do widget
+        if get_gtk_property(widget, :active, Bool)
+            old_parameters = value(signals.transform_parameters)
+            new_parameters = TransformParameters(old_parameters.energy_multiplier, old_parameters.pitch_range, Bounce())
+            push!(signals.transform_parameters, new_parameters)
+        end
     end
 
     on(signals.load_status) do status

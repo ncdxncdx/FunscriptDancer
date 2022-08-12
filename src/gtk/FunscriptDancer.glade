@@ -33,6 +33,7 @@
   <object class="GtkImage" id="heatmap.save">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
+    <property name="tooltip-text" translatable="yes">Export an image of the Funscript preview, at current size</property>
     <property name="stock">gtk-save-as</property>
   </object>
   <object class="GtkTextBuffer" id="open.status"/>
@@ -76,6 +77,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="receives-default">True</property>
+                            <property name="tooltip-text" translatable="yes">Go to homepage</property>
                             <property name="image">about</property>
                             <property name="relief">none</property>
                             <property name="uri">http://github.com/ncdx/FunscriptDancer</property>
@@ -90,6 +92,7 @@
                           <object class="GtkFileChooserButton" id="open.button">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="tooltip-text" translatable="yes">Open a new media file for Funscripting</property>
                             <property name="hexpand">True</property>
                             <property name="create-folders">False</property>
                             <property name="filter">filter.media</property>
@@ -113,6 +116,7 @@
                       <object class="GtkProgressBar" id="open.progress">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="tooltip-text" translatable="yes">Analysis progress</property>
                         <property name="hexpand">True</property>
                       </object>
                       <packing>
@@ -124,6 +128,7 @@
                       <object class="GtkTextView">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="tooltip-text" translatable="yes">Status messages</property>
                         <property name="hexpand">True</property>
                         <property name="editable">False</property>
                         <property name="wrap-mode">word</property>
@@ -174,6 +179,7 @@
                         <property name="height-request">200</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="tooltip-text" translatable="yes">Click on the left side to crop the beginning, the right to crop the end. Use this to remove anomalies (e.g. crowd noise, sound effects, intro jingles).</property>
                         <property name="hexpand">True</property>
                         <property name="vexpand">True</property>
                         <property name="orientation">vertical</property>
@@ -246,7 +252,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Funscript preview</property>
+                <property name="label" translatable="yes">Funscript heatmap preview</property>
               </object>
             </child>
           </object>
@@ -277,6 +283,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
+                        <property name="tooltip-text" translatable="yes">Export a Funscript file</property>
                         <property name="image">funscript.save</property>
                       </object>
                       <packing>
@@ -317,7 +324,7 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=1 -->
+          <!-- n-columns=3 n-rows=1 -->
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -343,6 +350,7 @@
                           <object class="GtkBox" id="funscript.energy.view">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="tooltip-text" translatable="yes">TODO: clever control goes here</property>
                             <property name="hexpand">True</property>
                             <property name="vexpand">True</property>
                             <property name="orientation">vertical</property>
@@ -359,6 +367,7 @@
                           <object class="GtkScale">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
+                            <property name="tooltip-text" translatable="yes">Multiples of 100 for stroke length with maximum energy</property>
                             <property name="vexpand">True</property>
                             <property name="orientation">vertical</property>
                             <property name="adjustment">funscript.energy.adjustment</property>
@@ -410,6 +419,7 @@
                           <object class="GtkBox" id="funscript.pitch.view">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="tooltip-text" translatable="yes">TODO: clever control goes here</property>
                             <property name="hexpand">True</property>
                             <property name="vexpand">True</property>
                             <property name="orientation">vertical</property>
@@ -426,6 +436,7 @@
                           <object class="GtkScale">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
+                            <property name="tooltip-text" translatable="yes">Maximum offset from 50 for each stroke's centre point</property>
                             <property name="vexpand">True</property>
                             <property name="orientation">vertical</property>
                             <property name="adjustment">funscript.pitch.adjustment</property>
@@ -452,6 +463,72 @@
               </object>
               <packing>
                 <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label-xalign">0</property>
+                <property name="shadow-type">in</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="left-padding">12</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkRadioButton" id="funscript.out_of_range.crop">
+                            <property name="label" translatable="yes">Crop</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">False</property>
+                            <property name="tooltip-text" translatable="yes">If an action would go over 100 or under 0, set it to 100 or 0</property>
+                            <property name="active">True</property>
+                            <property name="draw-indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkRadioButton" id="funscript.out_of_range.bounce">
+                            <property name="label" translatable="yes">Bounce</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">False</property>
+                            <property name="tooltip-text" translatable="yes">If an action would go over 100 or under 0, flip the portion out of range back towards the centre</property>
+                            <property name="active">True</property>
+                            <property name="draw-indicator">True</property>
+                            <property name="group">funscript.out_of_range.crop</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Out of range</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
                 <property name="top-attach">0</property>
               </packing>
             </child>
