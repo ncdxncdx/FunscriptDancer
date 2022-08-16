@@ -11,6 +11,9 @@ end
 struct Crop <: Overflow
 end
 
+struct Fold <: Overflow
+end
+
 struct TimeParameters
     start_time::Int
     end_time::Int
@@ -186,6 +189,14 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         if get_gtk_property(widget, :active, Bool)
             old_parameters = value(signals.transform_parameters)
             new_parameters = TransformParameters(old_parameters.energy_multiplier, old_parameters.pitch_range, Bounce())
+            push!(signals.transform_parameters, new_parameters)
+        end
+    end
+
+    signal_connect(builder["funscript.out_of_range.fold"], "toggled") do widget
+        if get_gtk_property(widget, :active, Bool)
+            old_parameters = value(signals.transform_parameters)
+            new_parameters = TransformParameters(old_parameters.energy_multiplier, old_parameters.pitch_range, Fold())
             push!(signals.transform_parameters, new_parameters)
         end
     end

@@ -1,5 +1,5 @@
 using FunscriptDancer, Test, DataFrames, CairoMakie
-import FunscriptDancer: AudioData, Actions, Action, TimeParameters, TransformParameters, Crop, Bounce
+import FunscriptDancer: AudioData, Actions, Action, TimeParameters, TransformParameters, Crop, Bounce, Fold
 import FunscriptDancer: transform_file, base_name, calculate_offsets, int_at, create_peak, is_in_time_range, default_normalised_pitch_to_offset, create_actions, calculate_speed, x_to_millis, create_normalised_pitch_to_offset, calculate_segments
 
 @testset "FunscriptDancer.jl" begin
@@ -24,6 +24,9 @@ end
     @test create_peak(Crop(), 20, 50, 90, 40) == [Action(50, 20)]
     @test create_peak(Crop(), 110, 50, 90, 40) == [Action(50, 100)]
     @test create_peak(Crop(), -10, 50, 110, 40) == [Action(50, 0)]
+    @test create_peak(Fold(), 20, 50, 90, 40) == [Action(50, 20)]
+    @test create_peak(Fold(), 110, 50, 90, 40) == [Action(45, 100), Action(50, 90)]
+    @test create_peak(Fold(), 140, 50, 50, 40) == [Action(45, 95), Action(50, 50)]
     @test is_in_time_range(0, 0, 0) == true
     @test is_in_time_range(100, 0, 0) == true
     @test is_in_time_range(0, 1000, 0) == false

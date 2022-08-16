@@ -1,6 +1,16 @@
 struct Action
     at::Int
     pos::Int
+    Action(at, pos) = begin
+        actual_pos = if pos < 0
+            0
+        elseif pos > 100
+            100
+        else
+            pos
+        end
+        new(round(Int, at), round(Int, actual_pos))
+    end
 end
 const Actions = Vector{Action}
 
@@ -84,7 +94,7 @@ end
 function create_peak(::Bounce, pos, at, last_pos, last_at)::Actions
     actions = Actions()
     function action(pos, at)
-        push!(actions, Action(round(Int, at), round(Int, pos)))
+        push!(actions, Action(at, pos))
     end
     if (last_pos < 0)
         tmp_at = int_at(pos, at, last_pos, last_at, 0)
@@ -108,14 +118,22 @@ function create_peak(::Bounce, pos, at, last_pos, last_at)::Actions
 end
 
 function create_peak(::Crop, pos, at, last_pos, last_at)::Actions
-    actual_pos = if pos > 100
-        100
-    elseif pos < 0
-        0
+    [Action(at, pos)]
+end
+
+function create_peak(::Fold, pos, at, last_pos, last_at)::Actions
+    if pos <= 100 && pos >= 0
+        [Action(round(Int, at), round(Int, pos))]
     else
-        pos
+        travel = abs(last_pos - pos) / 2
+        inter_at = (at + last_at) / 2
+        actual_pos = if pos > 100
+            last_pos + travel
+        else
+            last_pos - travel
+        end
+        [Action(inter_at, actual_pos), Action(at, last_pos)]
     end
-    [Action(round(Int, at), round(Int, actual_pos))]
 end
 
 function int_at(pos, at, last_pos, last_at, limit)
