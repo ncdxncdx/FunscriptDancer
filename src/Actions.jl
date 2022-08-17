@@ -91,24 +91,28 @@ function create_actions_barrier(iterator, energy_to_pos, time_parameters, overfl
     actions
 end
 
+function create_peak(::Crop, pos, at, last_pos, last_at)::Actions
+    [Action(at, pos)]
+end
+
 function create_peak(::Bounce, pos, at, last_pos, last_at)::Actions
     actions = Actions()
     function action(pos, at)
         push!(actions, Action(at, pos))
     end
-    if (last_pos < 0)
+    if last_pos < 0
         tmp_at = int_at(pos, at, last_pos, last_at, 0)
         action(0, tmp_at)
-    elseif (last_pos > 100)
+    elseif last_pos > 100
         tmp_at = int_at(pos, at, last_pos, last_at, 100)
         action(100, tmp_at)
     end
 
-    if (pos > 100)
+    if pos > 100
         tmp_at = int_at(pos, at, last_pos, last_at, 100)
         action(100, tmp_at)
         action(200 - pos, at)
-    elseif (pos < 0)
+    elseif pos < 0
         tmp_at = int_at(pos, at, last_pos, last_at, 0)
         action(0, tmp_at)
         action(-pos, at)
@@ -117,22 +121,28 @@ function create_peak(::Bounce, pos, at, last_pos, last_at)::Actions
     end
 end
 
-function create_peak(::Crop, pos, at, last_pos, last_at)::Actions
-    [Action(at, pos)]
-end
-
 function create_peak(::Fold, pos, at, last_pos, last_at)::Actions
-    if pos <= 100 && pos >= 0
-        [Action(round(Int, at), round(Int, pos))]
+    actions = Actions()
+    function action(pos, at)
+        push!(actions, Action(at, pos))
+    end
+
+    int_at = (last_at + at) / 2
+    travel = abs(last_pos - pos) / 2
+    if last_pos < 0
+        action(last_pos + travel, int_at)
+    elseif last_pos > 100
+        action(last_pos - travel, int_at)
+    end
+
+    if pos < 0
+        action(last_pos - travel, int_at)
+        action(last_pos, at)
+    elseif pos > 100
+        action(last_pos + travel, int_at)
+        action(last_pos, at)
     else
-        travel = abs(last_pos - pos) / 2
-        inter_at = (at + last_at) / 2
-        actual_pos = if pos > 100
-            last_pos + travel
-        else
-            last_pos - travel
-        end
-        [Action(inter_at, actual_pos), Action(at, last_pos)]
+        action(pos, at)
     end
 end
 

@@ -504,7 +504,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="receives-default">False</property>
-                            <property name="tooltip-text" translatable="yes">If an action would go over 100 or under 0, flip the portion out of range back towards the centre</property>
+                            <property name="tooltip-text" translatable="yes">If an action would go over 100 or under 0, add an extra stroke that reaches 100 or 0, maintaining total travel</property>
                             <property name="active">True</property>
                             <property name="draw-indicator">True</property>
                             <property name="group">funscript.out_of_range.crop</property>
@@ -521,7 +521,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="receives-default">False</property>
-                            <property name="tooltip-text" translatable="yes">If an action would go over 100 or under 0, travel and then return to starting position maintaining travel distance.</property>
+                            <property name="tooltip-text" translatable="yes">If an action would go over 100 or under 0, add an extra stroke that returns to the starting position, maintaining total travel</property>
                             <property name="active">True</property>
                             <property name="draw-indicator">True</property>
                             <property name="group">funscript.out_of_range.crop</property>

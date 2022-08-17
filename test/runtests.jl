@@ -27,6 +27,7 @@ end
     @test create_peak(Fold(), 20, 50, 90, 40) == [Action(50, 20)]
     @test create_peak(Fold(), 110, 50, 90, 40) == [Action(45, 100), Action(50, 90)]
     @test create_peak(Fold(), 140, 50, 50, 40) == [Action(45, 95), Action(50, 50)]
+    @test create_peak(Fold(), 140, 50, 110, 40) == [Action(45, 95), Action(45, 100), Action(50, 100)]
     @test is_in_time_range(0, 0, 0) == true
     @test is_in_time_range(100, 0, 0) == true
     @test is_in_time_range(0, 1000, 0) == false
