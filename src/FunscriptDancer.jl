@@ -206,7 +206,6 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
         progress_bar = builder["open.progress"]
         set_gtk_property!(status_text, :text, status.msg)
         set_gtk_property!(progress_bar, :fraction, status.position)
-        nothing
     end
 
     on(signals.transform_parameters) do transform_parameters
@@ -217,7 +216,6 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
             actions = create_actions(audio_data, time_parameters, transform_parameters)
             push!(signals.actions, actions)
         end
-        nothing
     end
 
     on(signals.audio_data) do ad_tp
@@ -231,13 +229,11 @@ function connect_ui(builder::GtkBuilder, signals::Signals)
             empty_actions
         end
         push!(signals.actions, actions)
-        nothing
     end
 
     on(signals.actions) do acts
         figure = redraw_funscript(funscript_canvas, acts, value(signals.audio_data).audio_data)
         push!(signals.heatmap, figure)
-        nothing
     end
 end
 
