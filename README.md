@@ -18,7 +18,7 @@ Download and unzip this somewhere, and add the folder containing the executable 
 
 Only `BBC Vamp Plugins` and `Vamp Aubio Plugins` are required.
 
-Note that the word length (32 bit or 64 bit) of `sonic-annotator` and the Vamp plugins must match. If in doubt, you probably want the 64 bit versions.
+Note that the word length (32 bit or 64 bit) of Sonic Annotator and the Vamp plugins must match. If in doubt, you probably want the 64 bit versions.
 
 ## Running from source
 
@@ -32,15 +32,15 @@ Start Julia with the command `julia --project --threads auto`
 
 To install Julia dependencies enter `using Pkg; Pkg.instantiate()` from the Julia prompt. This only needs to be done once.
 
-To run, enter `using FunscriptDancer; julia_main()"`. This will precompile the project and then run it.
+To run, enter `using FunscriptDancer; julia_main()`. This will precompile the project and then run it.
 
 Or run `julia --project --threads auto -e "using FunscriptDancer; julia_main()"` from the OS command prompt at the repo root.
 
-Be aware that Julia is just-in-time compiled. Each bit of code will be compiled when it is called for the first time in an execution: on subsequent calls it is faster than any interpreted language like Python would be. Once the Funscript preview is visible it should be snappy: until then, expect sluggishness.
+Be aware that Julia is just-in-time compiled. Each bit of code will be fully compiled when it is called for the first time in an execution: on subsequent calls it is faster than any interpreted language like Python would be. Once the Funscript preview is visible it should be snappy: until then, expect sluggishness.
 
 ## Prepackaged binaries
 
-In principle it is possible to build relocatable packages for Windows/MacOS/Linux using Julia.
+In principle it is possible to build compiled, relocatable packages for Windows/MacOS/Linux using Julia.
 
 In practice there are issues.
 
