@@ -1,5 +1,7 @@
 # FunscriptDancer
 
+![Screenshot](Screenshot.png)
+
 An app for generating Funscript files based on a media file.
 
 Should work on Windows, MacOS (untested, Intel only due to dependencies) and Linux.
