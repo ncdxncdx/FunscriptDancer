@@ -18,16 +18,39 @@ end
     @test int_at(110, 20, 90, 10, 100) == 15
     @test int_at(120, 40, 90, 10, 100) == 20
     @test int_at(-20, 40, 10, 10, 0) == 20
-    @test create_peak(Bounce(), 20, 50, 90, 40) == [Action(50, 20)]
-    @test create_peak(Bounce(), 110, 50, 90, 40) == [Action(45, 100), Action(50, 90)]
+
+    # within bounds up
+    @test create_peak(Crop(), 90, 20, 20, 0) == [Action(20, 90)]
+    @test create_peak(Bounce(), 90, 20, 20, 0) == [Action(20, 90)]
+    @test create_peak(Fold(), 90, 20, 20, 0) == [Action(20, 90)]
+
+    # within bounds down
+    @test create_peak(Crop(), 20, 30, 90, 0) == [Action(30, 20)]
+    @test create_peak(Bounce(), 20, 30, 90, 0) == [Action(30, 20)]
+    @test create_peak(Fold(), 20, 30, 90, 0) == [Action(30, 20)]
+
+    # out of bounds upper
+    @test create_peak(Crop(), 110, 20, 20, 0) == [Action(20, 100)]
+    @test create_peak(Bounce(), 110, 20, 20, 0) == [Action(18, 100), Action(20, 90)]
+    @test create_peak(Fold(), 110, 20, 20, 0) == [Action(10, 65), Action(20, 20)]
+
+    @test create_peak(Crop(), 60, 40, 110, 20) == [Action(40, 60)]
+    @test create_peak(Bounce(), 60, 40, 110, 20) == [Action(24, 100), Action(40, 60)]
+    @test create_peak(Fold(), 60, 40, 110, 20) == [Action(30, 85), Action(40, 60)]
+
+    # out of bounds lower
+    @test create_peak(Crop(), -10, 20, 80, 0) == [Action(20, 0)]
+    @test create_peak(Bounce(), -10, 20, 80, 0) == [Action(18, 0), Action(20, 10)]
+    @test create_peak(Fold(), -10, 20, 80, 0) == [Action(10, 35), Action(20, 80)]
+
+    @test create_peak(Crop(), 40, 40, -10, 20) == [Action(40, 40)]
+    @test create_peak(Bounce(), 40, 40, -10, 20) == [Action(24, 0), Action(40, 40)]
+    @test create_peak(Fold(), 40, 40, -10, 20) == [Action(30, 15), Action(40, 40)]
+
+    # out of bounds both
     @test create_peak(Bounce(), 140, 50, 110, 40) == [Action(42, 100), Action(42, 100), Action(50, 60)]
-    @test create_peak(Crop(), 20, 50, 90, 40) == [Action(50, 20)]
-    @test create_peak(Crop(), 110, 50, 90, 40) == [Action(50, 100)]
-    @test create_peak(Crop(), -10, 50, 110, 40) == [Action(50, 0)]
-    @test create_peak(Fold(), 20, 50, 90, 40) == [Action(50, 20)]
-    @test create_peak(Fold(), 110, 50, 90, 40) == [Action(45, 100), Action(50, 90)]
-    @test create_peak(Fold(), 140, 50, 50, 40) == [Action(45, 95), Action(50, 50)]
     @test create_peak(Fold(), 140, 50, 110, 40) == [Action(45, 95), Action(45, 100), Action(50, 100)]
+
     @test is_in_time_range(0, 0, 0) == true
     @test is_in_time_range(100, 0, 0) == true
     @test is_in_time_range(0, 1000, 0) == false
