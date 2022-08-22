@@ -80,7 +80,7 @@
                             <property name="tooltip-text" translatable="yes">Go to homepage</property>
                             <property name="image">about</property>
                             <property name="relief">none</property>
-                            <property name="uri">http://github.com/ncdx/FunscriptDancer</property>
+                            <property name="uri">http://github.com/ncdxncdx/FunscriptDancer</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
