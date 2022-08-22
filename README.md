@@ -24,7 +24,7 @@ Note that the word length (32 bit or 64 bit) of Sonic Annotator and the Vamp plu
 
 Install Julia, e.g. by using [Juliaup](https://github.com/JuliaLang/juliaup), available on the [Windows Store](https://www.microsoft.com/store/apps/9NJNWW8PVKMN).
 
-Clone this repo. Try [Github Desktop](https://desktop.github.com/) if you're not familiar with git.
+Clone this repo. Try [Github Desktop](https://desktop.github.com/) if you're not familiar with git. Or download it as a ZIP.
 
 Be aware that Julia is just-in-time compiled. Each bit of code will be fully compiled when it is called for the first time in an execution: on subsequent calls it is faster than any interpreted language like Python would be. Once the Funscript preview is visible it should be snappy: until then, expect sluggishness.
 
