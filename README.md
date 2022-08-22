@@ -24,7 +24,7 @@ Note that the word length (32 bit or 64 bit) of Sonic Annotator and the Vamp plu
 
 Install Julia, e.g. by using [Juliaup](https://github.com/JuliaLang/juliaup).
 
-Check out this repo.
+Check out this repo. Try [Github Desktop](https://desktop.github.com/) if you're not familiar with git.
 
 Open a command line and navigate to the root of the repo (the folder containing `project.toml`).
 
@@ -69,3 +69,13 @@ Bounce: the portion of the stroke that would be out of bounds is inverted back t
 Fold: the stroke goes to its half point, comes back to the start position, then to back to its halfway point, and then back again. Preserves total travel.
 
 ![Out of bounds strategies](out_of_bounds.png)
+
+## Caveats
+
+Although FunscriptDancer won't produce two actions at the same millisecond, it could produce two just one millisecond apart.
+
+There is no constraint on the speed of actions.
+
+The out of bounds strategy only applies once per stroke. If the folded/bounced stroke part also goes out of bounds it will be cropped.
+
+Handling of media with multiple pieces of music isn't great. The will produce different ranges of metrics. It may also interfere with beat detection.
