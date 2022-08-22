@@ -22,7 +22,7 @@ Note that the word length (32 bit or 64 bit) of Sonic Annotator and the Vamp plu
 
 ## Running from source
 
-Install Julia, e.g. by using [Juliaup](https://github.com/JuliaLang/juliaup).
+Install Julia, e.g. by using [Juliaup](https://github.com/JuliaLang/juliaup), available on the [Windows Store](https://www.microsoft.com/store/apps/9NJNWW8PVKMN).
 
 Check out this repo. Try [Github Desktop](https://desktop.github.com/) if you're not familiar with git.
 
