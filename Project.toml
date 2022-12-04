@@ -16,7 +16,7 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
 [compat]
 CSV = "0.10"
-CairoMakie = "0.8"
+CairoMakie = "0.8, 0.10"
 DataFrames = "1"
 FFMPEG = "0.4"
 Gtk = "1"
